@@ -1,28 +1,24 @@
-# Copyright 2016 Dravetech AB. All rights reserved.
-#
-# The contents of this file are licensed under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with the
-# License. You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations under
-# the License.
+# Originally forked from https://github.com/napalm-automation-community/napalm-f5
+# Inroducting support to python3 and get_config method to work w/ Nautobot.
 
 """
 Napalm driver for F5.
 Read https://napalm.readthedocs.io for more information.
 """
-
 import base64
 import os
+import importlib.util
+import sys
 
 import bigsuds
-from napalm_base.base import NetworkDriver
-from napalm_base.exceptions import ConnectionException, \
+from napalm.base.base import NetworkDriver
+module_name="f5"
+spec = importlib.util.spec_from_file_location(module_name, os.path.join(os.path.dirname(__file__), '..', module_name,"__init__.py"))
+module = importlib.util.module_from_spec(spec)
+sys.modules[module_name] = module
+spec.loader.exec_module(module)
+from f5.bigip import ManagementRoot
+from napalm.base.exceptions import ConnectionException, \
     MergeConfigException, ReplaceConfigException
 
 from napalm_f5.env import LIMITS, ALERT
@@ -66,6 +62,11 @@ class F5Driver(NetworkDriver):
                 self._upload_scf(filename)
             except Exception as err:
                 raise ReplaceConfigException('{}'.format(err))
+
+    def get_config(self,retrieve='all'):
+        mgmt = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
+        cmd = mgmt.tm.util.bash.exec_cmd('run', utilCmdArgs='-c "tmsh show running-config"')
+        return {"running": cmd.commandResult}
 
     def load_merge_candidate(self, filename=None, config=None):
         self.config_replace = False
@@ -598,5 +599,3 @@ class F5Driver(NetworkDriver):
             raise Exception('ConfigSync API Error: {}'.format(e.message))
         except EnvironmentError as e:
             raise Exception('Error ({}): {}'.format(e.errno, e.strerror))
-
-
