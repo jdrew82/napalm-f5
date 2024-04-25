@@ -56,8 +56,10 @@ class F5Driver(NetworkDriver):
                 raise ReplaceConfigException(err) from err
 
     def get_config(self, retrieve: str = "all"):
-        cmd = self.device.tm.util.bash.exec_cmd("run", utilCmdArgs='-c "tmsh show running-config"')
-        return {"running": cmd.commandResult}
+        config = self.device.command(
+            "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": '-c "tmsh show running-config"'}
+        )
+        return {"running": config}
 
     def load_merge_candidate(self, filename=None, config=None):
         self.config_replace = False
@@ -97,41 +99,28 @@ class F5Driver(NetworkDriver):
             return {"is_alive": False}
 
     def _get_uptime(self):
-        return self.device.System.SystemInfo.get_uptime()
+        return self.device.command("/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": "-c 'uptime'"}).lstrip()
 
-    def _get_version(self):
-        return self.device.tmos_version
-
-    def _get_serial_number(self):
-        hw = self.device.tm.sys.hardware.load()
-        return hw["_meta_data"]["entries"]["https://localhost/mgmt/tm/sys/hardware/system-info"]["nestedStats"][
-            "entries"
-        ]["https://localhost/mgmt/tm/sys/hardware/system-info/0"]["nestedStats"]["entries"]["bigipChassisSerialNum"]
-
-    def _get_model(self):
-        hw = self.device.tm.sys.hardware.load()
-        return hw["_meta_data"]["entries"]["https://localhost/mgmt/tm/sys/hardware/platform"]["nestedStats"]["entries"][
-            "https://localhost/mgmt/tm/sys/hardware/platform/0"
-        ]["nestedStats"]["marketingName"]["description"]
-
-    def _get_hostname(self):
-        return self.device.Management.Device.get_hostname(self.devices)[0]
+    def _get_device_info(self):
+        return self.device.load("/mgmt/tm/cm/device/")[0].properties
 
     def get_facts(self):
+        device_info = self._get_device_info()
         facts = {
             "uptime": self._get_uptime(),
             "vendor": "F5 Networks",
-            "model": self._get_model(),
-            "hostname": self._get_hostname(),
-            "fqdn": self._get_hostname(),
-            "os_version": self._get_version(),
-            "serial_number": self._get_serial_number(),
+            "model": device_info["marketingName"],
+            "hostname": device_info["hostname"],
+            "fqdn": device_info["hostname"],
+            "os_version": device_info["version"],
+            "serial_number": device_info["chassisId"],
             "interface_list": self._get_interfaces_list(),
         }
         return facts
 
     def _get_interfaces_list(self):
-        interfaces = self.device.Networking.Interfaces.get_list()
+        result = self.device.load("/mgmt/tm/net/interface/")
+        interfaces = [intf.properties["name"] for intf in result]
         return interfaces
 
     def _get_interfaces_enabled_state(self, interfaces):
