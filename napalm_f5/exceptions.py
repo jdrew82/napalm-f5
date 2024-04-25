@@ -5,3 +5,6 @@ class CommitConfigException(Exception):
 class DiscardConfigException(Exception):
     pass
 
+
+class ReplaceConfigException(Exception):
+    pass
