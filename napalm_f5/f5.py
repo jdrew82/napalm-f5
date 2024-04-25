@@ -8,7 +8,7 @@ Read https://napalm.readthedocs.io for more information.
 import base64
 import os
 
-from bigrest.bigip import BIGIP
+from bigrest.bigip import BIGIP, RESTAPIError
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 from napalm_f5.env import LIMITS, ALERT
@@ -35,7 +35,7 @@ class F5Driver(NetworkDriver):
             self.device = BIGIP(
                 device=self.hostname, username=self.username, password=self.password, session_verify=False
             )
-        except ConnectionError as err:
+        except RESTAPIError as err:
             raise ConnectionException(f"F5 API Error ({err})") from err
 
     def close(self):
