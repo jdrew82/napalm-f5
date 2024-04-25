@@ -8,7 +8,7 @@ Read https://napalm.readthedocs.io for more information.
 import base64
 import os
 
-from f5.bigip import ManagementRoot
+from bigrest.bigip import BIGIP
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 from napalm_f5.env import LIMITS, ALERT
@@ -32,8 +32,9 @@ class F5Driver(NetworkDriver):
     def open(self):
         """F5 version of `open` method, see NAPALM for documentation."""
         try:
-            self.device = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
-            self.devices = self.device.Management.Device.get_list()
+            self.device = BIGIP(
+                device=self.hostname, username=self.username, password=self.password, session_verify=False
+            )
         except ConnectionError as err:
             raise ConnectionException(f"F5 API Error ({err})") from err
 
