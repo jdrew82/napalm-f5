@@ -7,20 +7,10 @@ Read https://napalm.readthedocs.io for more information.
 """
 import base64
 import os
-import importlib.util
-import sys
 
-import bigsuds
-from napalm.base.base import NetworkDriver
-module_name="f5"
-spec = importlib.util.spec_from_file_location(module_name, os.path.join(os.path.dirname(__file__), '..', module_name,"__init__.py"))
-module = importlib.util.module_from_spec(spec)
-sys.modules[module_name] = module
-spec.loader.exec_module(module)
 from f5.bigip import ManagementRoot
-from napalm.base.exceptions import ConnectionException, \
-    MergeConfigException, ReplaceConfigException
-
+from napalm.base.base import NetworkDriver
+from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 from napalm_f5.env import LIMITS, ALERT
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
 
