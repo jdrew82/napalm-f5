@@ -35,7 +35,8 @@ class F5Driver(NetworkDriver):
             self.device = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
             self.devices = self.device.Management.Device.get_list()
         except ConnectionError as err:
-            raise ConnectionException('F5 API Error ({})'.format(err))
+            raise ConnectionException(f"F5 API Error ({err})") from err
+
 
     def load_replace_candidate(self, filename=None, config=None):
         self.config_replace = True
@@ -48,7 +49,8 @@ class F5Driver(NetworkDriver):
             try:
                 self._upload_scf(filename)
             except Exception as err:
-                raise ReplaceConfigException('{}'.format(err))
+                raise ReplaceConfigException(err) from err
+
 
     def get_config(self,retrieve='all'):
         cmd = self.device.tm.util.bash.exec_cmd('run', utilCmdArgs='-c "tmsh show running-config"')
@@ -65,7 +67,7 @@ class F5Driver(NetworkDriver):
             try:
                 self._upload_scf(filename)
             except Exception as err:
-                raise MergeConfigException('{}'.format(err))
+                raise MergeConfigException(err) from err
 
     def commit_config(self):
         try:
@@ -77,7 +79,7 @@ class F5Driver(NetworkDriver):
                 merge=not self.config_replace
             )
         except bigsuds.OperationFailed as err:
-            raise CommitConfigException('{}'.format(err))
+            raise CommitConfigException(err) from err
 
     def discard_config(self):
         try:
@@ -85,7 +87,7 @@ class F5Driver(NetworkDriver):
                 filename=self.filename
             )
         except bigsuds.OperationFailed as err:
-            raise DiscardConfigException('{}'.format(err))
+            raise DiscardConfigException(err) from err
 
     def is_alive(self):
         if self.device:
@@ -583,7 +585,7 @@ class F5Driver(NetworkDriver):
 
                     start += len(payload)
 
-        except bigsuds.OperationFailed as e:
-            raise Exception('ConfigSync API Error: {}'.format(e.message))
-        except EnvironmentError as e:
-            raise Exception('Error ({}): {}'.format(e.errno, e.strerror))
+        except ConnectionError as err:
+            raise ConnectionError(f"F5 API Error: {err.message}") from err
+        except EnvironmentError as err:
+            raise EnvironmentError(f"Error ({err.errno}): {err.strerror}") from err
