@@ -30,6 +30,7 @@ class F5Driver(NetworkDriver):
             optional_args = {}
 
     def open(self):
+        """F5 version of `open` method, see NAPALM for documentation."""
         try:
             self.device = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
             self.devices = self.device.Management.Device.get_list()
