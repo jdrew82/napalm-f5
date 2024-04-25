@@ -7,8 +7,8 @@ authors = ["Justin Drew <info@networktocode.com>"]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 napalm = "^4.0.0"
-f5 = "^0.0.4"
 six = "^1.16.0"
+f5-sdk = "^3.0.21"
 
 [tool.poetry.dev-dependencies]
 bandit = "*"
