@@ -97,7 +97,7 @@ class F5Driver(NetworkDriver):
         return self.device.System.SystemInfo.get_uptime()
 
     def _get_version(self):
-        return self.device.System.SystemInfo.get_version()
+        return self.device.tmos_version
 
     def _get_serial_number(self):
         system_information = self.device.System.SystemInfo.get_system_information()
