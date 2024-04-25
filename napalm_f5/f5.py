@@ -37,6 +37,9 @@ class F5Driver(NetworkDriver):
         except ConnectionError as err:
             raise ConnectionException(f"F5 API Error ({err})") from err
 
+    def close(self):
+        """F5 version of `close` method, see NAPALM for documentation."""
+        self.device = None
 
     def load_replace_candidate(self, filename=None, config=None):
         self.config_replace = True
