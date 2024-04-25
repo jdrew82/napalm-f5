@@ -105,7 +105,9 @@ class F5Driver(NetworkDriver):
         return chassis_serial
 
     def _get_model(self):
-        return self.device.System.SystemInfo.get_marketing_name()
+        hw = self.device.tm.sys.hardware.load()
+        return hw["_meta_data"]["entries"]["https://localhost/mgmt/tm/sys/hardware/platform"]["nestedStats"]["entries"]["https://localhost/mgmt/tm/sys/hardware/platform/0"]["nestedStats"]["marketingName"]["description"]
+
 
     def _get_hostname(self):
         return self.device.Management.Device.get_hostname(self.devices)[0]
