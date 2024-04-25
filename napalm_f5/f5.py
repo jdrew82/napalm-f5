@@ -32,13 +32,10 @@ class F5Driver(NetworkDriver):
 
     def open(self):
         try:
-            self.device = bigsuds.BIGIP(hostname=self.hostname,
-                                        username=self.username,
-                                        password=self.password
-                                        )
+            self.device = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
             self.devices = self.device.Management.Device.get_list()
-        except bigsuds.OperationFailed as err:
-            raise ConnectionException('ConfigSync API Error ({})'.format(err))
+        except ConnectionError as err:
+            raise ConnectionException('F5 API Error ({})'.format(err))
 
     def load_replace_candidate(self, filename=None, config=None):
         self.config_replace = True
