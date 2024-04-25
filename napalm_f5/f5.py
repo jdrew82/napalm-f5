@@ -51,8 +51,7 @@ class F5Driver(NetworkDriver):
                 raise ReplaceConfigException('{}'.format(err))
 
     def get_config(self,retrieve='all'):
-        mgmt = ManagementRoot(hostname=self.hostname, username=self.username, password=self.password)
-        cmd = mgmt.tm.util.bash.exec_cmd('run', utilCmdArgs='-c "tmsh show running-config"')
+        cmd = self.device.tm.util.bash.exec_cmd('run', utilCmdArgs='-c "tmsh show running-config"')
         return {"running": cmd.commandResult}
 
     def load_merge_candidate(self, filename=None, config=None):
