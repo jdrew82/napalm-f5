@@ -147,10 +147,6 @@ class F5Driver(NetworkDriver):
         statistcs = self.device.Networking.Interfaces.get_all_statistics()
         return statistcs
 
-    def _get_active_media(self, interfaces):
-        active_media = self.device.Networking.Interfaces.get_active_media(interfaces)
-        return active_media
-
     def _get_system_information(self):
         system_information = self.device.Management.SNMPConfiguration.get_system_information()
         return system_information
