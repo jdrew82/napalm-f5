@@ -98,9 +98,10 @@ class F5Driver(NetworkDriver):
         return self.device.tmos_version
 
     def _get_serial_number(self):
-        system_information = self.device.System.SystemInfo.get_system_information()
-        chassis_serial = system_information['chassis_serial']
-        return chassis_serial
+        hw = self.device.tm.sys.hardware.load()
+        return hw["_meta_data"]["entries"]["https://localhost/mgmt/tm/sys/hardware/system-info"]["nestedStats"][
+            "entries"
+        ]["https://localhost/mgmt/tm/sys/hardware/system-info/0"]["nestedStats"]["entries"]["bigipChassisSerialNum"]
 
     def _get_model(self):
         hw = self.device.tm.sys.hardware.load()
