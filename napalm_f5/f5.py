@@ -114,33 +114,32 @@ class F5Driver(NetworkDriver):
             "fqdn": device_info["hostname"],
             "os_version": device_info["version"],
             "serial_number": device_info["chassisId"],
-            "interface_list": self._get_interfaces_list(),
+            "interface_list": self._get_interfaces_list(query=self.device.load("/mgmt/tm/net/interface/")),
         }
         return facts
 
-    def _get_interfaces_list(self):
-        result = self.device.load("/mgmt/tm/net/interface/")
-        interfaces = [intf.properties["name"] for intf in result]
+    def _get_interfaces_list(self, query):
+        interfaces = [intf.properties["name"] for intf in query]
         return interfaces
 
-    def _get_interfaces_enabled_state(self, interfaces):
-        enabled_state = self.device.Networking.Interfaces.get_enabled_state(interfaces)
+    def _get_interfaces_enabled_state(self, query):
+        enabled_state = [intf.properties["enabled"] for intf in query]
         return enabled_state
 
-    def _get_interfaces_mac_address(self, interfaces):
-        mac_address = self.device.Networking.Interfaces.get_mac_address(interfaces)
-        return mac_address
+    def _get_interfaces_mac_address(self, query):
+        mac_addresses = [intf.properties["macAddress"] for intf in query]
+        return mac_addresses
 
-    def _get_interfaces_active_media(self, interfaces):
-        active_media = self.device.Networking.Interfaces.get_active_media(interfaces)
+    def _get_interfaces_active_media(self, query):
+        active_media = [intf.properties["mediaActive"] for intf in query]
         return active_media
 
-    def _get_interfaces_media_status(self, interfaces):
-        media_status = self.device.Networking.Interfaces.get_media_status(interfaces)
+    def _get_interfaces_media_status(self, query):
+        media_status = [not (intf.properties["mediaActive"] == "none") for intf in query]
         return media_status
 
-    def _get_interfaces_description(self, interfaces):
-        description = self.device.Networking.Interfaces.get_description(interfaces)
+    def _get_interfaces_description(self, query):
+        description = [intf.properties["description"] if intf.properties.get("description") else "" for intf in query]
         return description
 
     def _get_interfaces_all_statistics(self):
@@ -381,8 +380,8 @@ class F5Driver(NetworkDriver):
     def get_interfaces_counters(self):
         try:
             icr_statistics = self._get_interfaces_all_statistics()
-        except bigsuds.OperationFailed as err:
-            raise Exception("get_interfaces: {}".format(err))
+        except RESTAPIError as err:
+            raise ConnectionError(f"get_interfaces: {err}") from err
 
         counters = {}
         for x in icr_statistics["statistics"]:
@@ -431,19 +430,20 @@ class F5Driver(NetworkDriver):
                 return -1
 
         try:
-            interfaces = self._get_interfaces_list()
-            active_media = self._get_interfaces_active_media(interfaces)
-            description = self._get_interfaces_description(interfaces)
-            enabled_state = self._get_interfaces_enabled_state(interfaces)
-            mac_address = self._get_interfaces_mac_address(interfaces)
-            media_status = self._get_interfaces_media_status(interfaces)
-        except ConnectionError as err:
+            intf_query = self.device.load("/mgmt/tm/net/interface/")
+            interfaces = self._get_interfaces_list(intf_query)
+            active_media = self._get_interfaces_active_media(intf_query)
+            description = self._get_interfaces_description(intf_query)
+            enabled_state = self._get_interfaces_enabled_state(intf_query)
+            mac_address = self._get_interfaces_mac_address(intf_query)
+            media_status = self._get_interfaces_media_status(intf_query)
+        except RESTAPIError as err:
             raise ConnectionError(f"get_interfaces: {err}") from err
 
         interfaces_dict = {
             interface_name: {
-                "is_up": True if media_status == "MEDIA_STATUS_UP" else False,
-                "is_enabled": True if enabled_state == "STATE_ENABLED" else False,
+                "is_up": media_status,
+                "is_enabled": enabled_state,
                 "description": description,
                 "last_flapped": -1.0,
                 "speed": if_speed(active_media),
