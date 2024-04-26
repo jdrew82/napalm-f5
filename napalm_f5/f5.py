@@ -70,6 +70,24 @@ class F5Driver(NetworkDriver):
             candidate(string): Representation of the native candidate configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
             startup(string): Representation of the native startup configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
         """
+        if sanitized or full:
+            raise NotImplementedError("Specified feature for get_config() is not implemented.")
+
+        if retrieve not in ["all", "recursive"]:
+            raise NotImplementedError(f"Retrieve type of {retrieve} is not valid. Only running-config can be provided.")
+
+        if format != "text":
+            raise NotImplementedError(f"Format of type {format} is not valid.")
+
+        if retrieve == "recursive":
+            config = self.device.command(
+                    "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": '-c "tmsh show running-config recursive"'}
+            )
+        else:
+            config = self.device.command(
+                "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": '-c "tmsh show running-config"'}
+            )
+        return {"running": config, "candidate": "", "startup": ""}
 
     def load_merge_candidate(self, filename=None, config=None):
         self.config_replace = False
