@@ -55,11 +55,21 @@ class F5Driver(NetworkDriver):
             except Exception as err:
                 raise ReplaceConfigException(err) from err
 
-    def get_config(self, retrieve: str = "all"):
-        config = self.device.command(
-            "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": '-c "tmsh show running-config"'}
-        )
-        return {"running": config}
+    def get_config(
+        self, retrieve: str = "all", full: bool = False, sanitized: bool = False, format: str = "text"
+    ) -> dict:
+        """F5 version of 'get_config' method, see NAPALM for documentation.
+
+        Args:
+            retrieve (string): Which configuration type you want to populate, default is full running-config. The rest will be set to “”.
+            full (bool): Retrieve all the configuration. For instance, on ios, “sh run all”.
+            sanitized (bool): Remove secret data. Default: False.
+            format (string): The configuration format style to be retrieved.
+        Returns:
+            running(string): Representation of the native running configuration
+            candidate(string): Representation of the native candidate configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
+            startup(string): Representation of the native startup configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
+        """
 
     def load_merge_candidate(self, filename=None, config=None):
         self.config_replace = False
