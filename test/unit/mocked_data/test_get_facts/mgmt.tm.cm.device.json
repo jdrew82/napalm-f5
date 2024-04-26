@@ -1,0 +1,41 @@
+{
+    "kind": "tm:cm:device:devicestate",
+    "name": "bigip-a.example.net",
+    "partition": "Common",
+    "fullPath": "/Common/bigip-a.example.net",
+    "generation": 1,
+    "selfLink": "https://localhost/mgmt/tm/cm/device/~Common~bigip-a.example.net?ver=15.1.0.1",
+    "activeModules": [
+        "MSP, Best with AWF, 200Mbps|XAUXIUD-MMCSTXC|Rate Shaping|SSL, VE|Max Compression, VE|AFM, VE|MSP, APM, (500 CCU)|DNS-GTM, Base, 200M|Crypto Offload, VE|SDN Services, VE|Advanced Web Application Firewall, VE|DNSSEC|Anti-Virus Checks|Base Endpoint Security Checks|Firewall Checks|Network Access|Secure Virtual Keyboard|APM, Web Application|Machine Certificate Checks|Protected Workspace|Remote Desktop|App Tunnel|DNS Rate Limit, 1000 QPS|GTM Rate, 1000|Routing Bundle, VE|VE, Carrier Grade NAT (AFM ONLY)|PSM, VE"
+    ],
+    "alternateIp": "none",
+    "baseMac": "00:50:56:01:3b:68",
+    "build": "0.0.4",
+    "cert": "/Common/dtdi.crt",
+    "certReference": {
+        "link": "https://localhost/mgmt/tm/cm/cert/~Common~dtdi.crt?ver=15.1.0.1"
+    },
+    "chassisId": "423d8d5a-62ba-6100-8de40da65025",
+    "chassisType": "individual",
+    "configsyncIp": "none",
+    "edition": "Point Release 1",
+    "failoverState": "active",
+    "haCapacity": 0,
+    "hostname": "bigip-a.example.net",
+    "key": "/Common/dtdi.key",
+    "keyReference": {
+        "link": "https://localhost/mgmt/tm/cm/key/~Common~dtdi.key?ver=15.1.0.1"
+    },
+    "managementIp": "192.168.2.245",
+    "marketingName": "BIG-IP Virtual Edition",
+    "mgmtUnicastMode": "both",
+    "mirrorIp": "any6",
+    "mirrorSecondaryIp": "any6",
+    "multicastIp": "any6",
+    "multicastPort": 0,
+    "platformId": "Z100",
+    "product": "BIG-IP",
+    "selfDevice": "true",
+    "timeZone": "America/Los_Angeles",
+    "version": "15.1.0.1"
+}
