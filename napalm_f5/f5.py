@@ -529,7 +529,7 @@ class F5Driver(NetworkDriver):
 
                     start += len(payload)
 
-        except ConnectionError as err:
-            raise ConnectionError(f"F5 API Error: {err.message}") from err
+        except RESTAPIError as err:
+            raise ConnectionError(f"F5 API Error: {err}") from err
         except EnvironmentError as err:
             raise EnvironmentError(f"Error ({err.errno}): {err.strerror}") from err
