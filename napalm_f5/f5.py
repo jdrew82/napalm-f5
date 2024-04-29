@@ -7,6 +7,7 @@ Read https://napalm.readthedocs.io for more information.
 """
 import base64
 import os
+from typing import Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
 from napalm.base.base import NetworkDriver
@@ -16,7 +17,18 @@ from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
 
 
 class F5Driver(NetworkDriver):
-    def __init__(self, hostname, username, password, timeout=60, optional_args=None):
+    def __init__(  # pylint: disable=too-many-arguments
+        self, hostname: str, username: str, password: str, timeout: int = 60, optional_args: Optional[dict] = None
+    ):
+        """Initialize shared variables for driver.
+
+        Args:
+            hostname (str): Hostname for device to connect to.
+            username (str): Username to authenticate with against device.
+            password (str): Password to authenticate with against device.
+            timeout (int, optional): Timeout for requests.. Defaults to 60.
+            optional_args (Optional[dict], optional): Optional arguments to use with driver. Defaults to None.
+        """
         self.hostname = hostname
         self.username = username
         self.password = password
