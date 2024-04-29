@@ -17,6 +17,8 @@ from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
 
 
 class F5Driver(NetworkDriver):
+    """F5 REST API based NAPALM driver."""
+
     def __init__(  # pylint: disable=too-many-arguments
         self, hostname: str, username: str, password: str, timeout: int = 60, optional_args: Optional[dict] = None
     ):
