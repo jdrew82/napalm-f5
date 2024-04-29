@@ -1,0 +1,88 @@
+{
+    "kind": "tm:sys:snmp:snmpstate",
+    "selfLink": "https://localhost/mgmt/tm/sys/snmp?ver=15.1.0.1",
+    "agentAddresses": [
+        "tcp6:161",
+        "udp6:161"
+    ],
+    "agentTrap": "enabled",
+    "allowedAddresses": [
+        "127.0.0.0/8"
+    ],
+    "authTrap": "disabled",
+    "bigipTraps": "enabled",
+    "loadMax1": 12,
+    "loadMax15": 12,
+    "loadMax5": 12,
+    "snmpv1": "enable",
+    "snmpv2c": "enable",
+    "sysContact": "Customer Name <admin@customer.com>",
+    "sysLocation": "Network Closet 1",
+    "sysServices": 78,
+    "trapCommunity": "public",
+    "trapSource": "none",
+    "communitiesReference": {
+        "link": "https://localhost/mgmt/tm/sys/snmp/communities?ver=15.1.0.1",
+        "isSubcollection": true,
+    },
+    "diskMonitors": [
+        {
+            "name": "/Common/root",
+            "minspace": 2000,
+            "minspaceType": "size",
+            "path": "/"
+        },
+        {
+            "name": "/Common/var",
+            "minspace": 10000,
+            "minspaceType": "size",
+            "path": "/var"
+        },
+    ],
+    "processMonitors": [
+        {
+            "name": "/Common/bigd",
+            "maxProcesses": "1",
+            "minProcesses": 1,
+            "process": "bigd"
+        },
+        {
+            "name": "/Common/chmand",
+            "maxProcesses": "1",
+            "minProcesses": 1,
+            "process": "chmand"
+        },
+        {
+            "name": "/Common/httpd",
+            "maxProcesses": "infinity",
+            "minProcesses": 1,
+            "process": "httpd"
+        },
+        {
+            "name": "/Common/mcpd",
+            "maxProcesses": "1",
+            "minProcesses": 1,
+            "process": "mcpd"
+        },
+        {
+            "name": "/Common/sod",
+            "maxProcesses": "1",
+            "minProcesses": 1,
+            "process": "sod"
+        },
+        {
+            "name": "/Common/tmm",
+            "maxProcesses": "infinity",
+            "minProcesses": 1,
+            "process": "tmm"
+        },
+    ],
+    "trapsReference": {
+        "link": "https://localhost/mgmt/tm/sys/snmp/traps?ver=15.1.0.1",
+        "isSubcollection": true
+    },
+    "usersReference": {
+        "link": "https://localhost/mgmt/tm/sys/snmp/users?ver=15.1.0.1",
+        "isSubcollection": true
+    },
+}
