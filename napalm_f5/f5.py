@@ -45,7 +45,11 @@ class F5Driver(NetworkDriver):
         """F5 version of `open` method, see NAPALM for documentation."""
         try:
             self.device = BIGIP(
-                device=self.hostname, username=self.username, password=self.password, session_verify=False
+                device=self.hostname,
+                username=self.username,
+                password=self.password,
+                session_verify=False,
+                timeout=self.timeout,
             )
         except RESTAPIError as err:
             raise ConnectionException(f"F5 API Error ({err})") from err
