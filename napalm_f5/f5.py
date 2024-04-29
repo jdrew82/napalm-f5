@@ -192,31 +192,24 @@ class F5Driver(NetworkDriver):
         statistcs = self.device.Networking.Interfaces.get_all_statistics()
         return statistcs
 
-    def _get_system_information(self):
-        system_information = self.device.Management.SNMPConfiguration.get_system_information()
+    def _get_system_information(self) -> dict:
+        system_information = self.device.load("/mgmt/tm/sys/snmp/").properties
         return system_information
 
     def get_snmp_information(self):
         sys_info = self._get_system_information()
         snmp_info = {
-            "contact": sys_info["sys_contact"] or "",
-            "location": sys_info["sys_location"] or "",
-            "chassis_id": sys_info["sys_description"] or "",
+            "contact": sys_info["sysContact"] or "",
+            "location": sys_info["sysLocation"] or "",
+            "chassis_id": sys_info.get("description") or "",
             "community": {},
         }
-        ro_comm = self.device.Management.SNMPConfiguration.get_readonly_community()
-        rw_comm = self.device.Management.SNMPConfiguration.get_readwrite_community()
+        communities = self.device.load("/mgmt/tm/sys/snmp/communities/")
 
-        for x in ro_comm:
-            snmp_info["community"][x["community"]] = {
-                "acl": x["source"] or "N/A",
-                "mode": "ro",
-            }
-
-        for x in rw_comm:
-            snmp_info["community"][x["community"]] = {
-                "acl": x["source"] or "N/A",
-                "mode": "rw",
+        for comm in communities:
+            snmp_info["community"][comm.properties["communityName"]] = {
+                "acl": comm.properties["source"] or "N/A",
+                "mode": comm.properties["access"],
             }
 
         return snmp_info
