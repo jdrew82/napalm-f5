@@ -275,27 +275,14 @@ class F5Driver(NetworkDriver):
         return {server: {} for server in self.device.System.Inet.get_ntp_server_address()}
 
     def get_interfaces_ip(self):
-        def _get_prefix_length(netmask):
-            if ":" in netmask:
-                if netmask.endswith("::"):
-                    netmask = netmask.replace("::", "")
-                return sum([bin(int(x, 16)).count("1") for x in netmask.split(":")])
-            else:
-                return sum([bin(int(x)).count("1") for x in netmask.split(".")])
-
-        net_selfs = self.device.Networking.SelfIPV2.get_list()
-        ips = self.device.Networking.SelfIPV2.get_address(net_selfs)
-        netmasks = self.device.Networking.SelfIPV2.get_netmask(net_selfs)
-        prefixes = list(map(_get_prefix_length, netmasks))
-
+        result = self.device.load("/mgmt/tm/net/self/")
         interfaces_ip = {}
-
-        for net_self in zip(net_selfs, ips, prefixes):
-            if ":" in net_self[1]:
-                interfaces_ip[net_self[0]] = {"ipv6": {net_self[1]: {"prefix_length": net_self[2]}}}
+        for ip in result:
+            host, prefix = tuple(ip["address"].split("/"))
+            if ":" in ip["address"]:
+                interfaces_ip[ip["fullPath"]] = {"ipv6": {host: {"prefix_length": int(prefix)}}}
             else:
-                interfaces_ip[net_self[0]] = {"ipv4": {net_self[1]: {"prefix_length": net_self[2]}}}
-
+                interfaces_ip[ip["fullPath"]] = {"ipv4": {host: {"prefix_length": int(prefix)}}}
         return interfaces_ip
 
     def get_environment(self):
