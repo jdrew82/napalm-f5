@@ -60,7 +60,7 @@ class F5Driver(NetworkDriver):
         """F5 version of `close` method, see NAPALM for documentation."""
         self.device = None
 
-    def cli(self, commands: List[str], encoding: str = "text") -> Dict[str, str | Dict[str, Any]]:
+    def cli(self, commands: List[str], encoding: str = "text") -> Union[Dict[str, str], Dict[str, Any]]:
         """F5 version of 'cli' method, see NAPALM for documentation.
 
         Args:
@@ -68,7 +68,7 @@ class F5Driver(NetworkDriver):
             encoding (str, optional): Encoding of results. Defaults to "text".
 
         Returns:
-            Dict[str, str | Dict[str, Any]]: Dictionary of commands sent and their associated response.
+            Union[Dict[str, str], Dict[str, Any]]: Dictionary of commands sent and their associated response.
         """
         results = {}
         for command in commands:
