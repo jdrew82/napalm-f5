@@ -156,6 +156,7 @@ class F5Driver(NetworkDriver):
             raise DiscardConfigException(err) from err
 
     def is_alive(self):
+        """F5 version of `is_alive` method, see NAPALM for documentation."""
         if self.device:
             return {"is_alive": True}
         return {"is_alive": False}
