@@ -7,7 +7,7 @@ Read https://napalm.readthedocs.io for more information.
 """
 import base64
 import os
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
 from napalm.base.base import NetworkDriver
@@ -59,6 +59,23 @@ class F5Driver(NetworkDriver):
     def close(self):
         """F5 version of `close` method, see NAPALM for documentation."""
         self.device = None
+
+    def cli(self, commands: List[str], encoding: str = "text") -> Dict[str, str | Dict[str, Any]]:
+        """F5 version of 'cli' method, see NAPALM for documentation.
+
+        Args:
+            commands (List[str]): List of commands to be sent as strings.
+            encoding (str, optional): Encoding of results. Defaults to "text".
+
+        Returns:
+            Dict[str, str | Dict[str, Any]]: Dictionary of commands sent and their associated response.
+        """
+        results = {}
+        for command in commands:
+            results[command] = self.device.command(
+                "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": f'-c "{command}"'}
+            )
+        return results
 
     def load_replace_candidate(self, filename=None, config=None):
         self.config_replace = True
