@@ -284,8 +284,15 @@ class F5Driver(NetworkDriver):
         }
         return users_dict
 
-    def get_ntp_servers(self):
-        return {server: {} for server in self.device.System.Inet.get_ntp_server_address()}
+    def get_ntp_servers(self) -> dict:
+        """F5 version of `get_ntp_servers` method, see NAPALM for documentation.
+
+        Returns:
+            dict: Dictionary of NTP server hosts as key with empty value.
+        """
+        result = self.device.load("/mgmt/tm/sys/ntp/").properties
+        ntp_servers = result.get("servers")
+        return {server: {} for server in ntp_servers}
 
     def get_interfaces_ip(self):
         result = self.device.load("/mgmt/tm/net/self/")
