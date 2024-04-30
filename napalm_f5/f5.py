@@ -168,6 +168,7 @@ class F5Driver(NetworkDriver):
         return self.device.load("/mgmt/tm/cm/device/")[0].properties
 
     def get_facts(self):
+        """F5 version of `get_facts` method, see NAPALM for documentation."""
         device_info = self._get_device_info()
         facts = {
             "uptime": self._get_uptime(),
