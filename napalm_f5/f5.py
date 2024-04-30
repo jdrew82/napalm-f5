@@ -182,27 +182,27 @@ class F5Driver(NetworkDriver):
         }
         return facts
 
-    def _get_interfaces_list(self, query):
+    def _get_interfaces_list(self, query) -> List[str]:
         interfaces = [intf.properties["name"] for intf in query]
         return interfaces
 
-    def _get_interfaces_enabled_state(self, query):
+    def _get_interfaces_enabled_state(self, query) -> List[bool]:
         enabled_state = [intf.properties["enabled"] for intf in query]
         return enabled_state
 
-    def _get_interfaces_mac_address(self, query):
+    def _get_interfaces_mac_address(self, query) -> List[str]:
         mac_addresses = [intf.properties["macAddress"] for intf in query]
         return mac_addresses
 
-    def _get_interfaces_active_media(self, query):
+    def _get_interfaces_active_media(self, query) -> list[bool]:
         active_media = [intf.properties["mediaActive"] for intf in query]
         return active_media
 
-    def _get_interfaces_media_status(self, query):
+    def _get_interfaces_media_status(self, query) -> List[bool]:
         media_status = [not (intf.properties["mediaActive"] == "none") for intf in query]
         return media_status
 
-    def _get_interfaces_description(self, query):
+    def _get_interfaces_description(self, query) -> List[str]:
         description = [intf.properties["description"] if intf.properties.get("description") else "" for intf in query]
         return description
 
