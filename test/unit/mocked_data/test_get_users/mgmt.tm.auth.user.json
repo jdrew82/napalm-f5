@@ -1,0 +1,18 @@
+{
+    "kind": "tm:auth:user:userstate",
+    "name": "admin",
+    "fullPath": "admin",
+    "generation": 1,
+    "selfLink": "https://localhost/mgmt/tm/auth/user/admin?ver=15.1.0.1",
+    "description": "Admin User",
+    "encryptedPassword": "$6$bF5tUi/E$.Ex4TCpVErHiB7Azm3YR8i9z56ugp/KOshOn0IqTWeI20JB3d1G2PLwLYgtJtHT.oliMBPyDcceO1.vqcu4iy.",
+    "partitionAccess": [
+        {
+            "name": "all-partitions",
+            "role": "admin",
+            "nameReference": {
+                "link": "https://localhost/mgmt/tm/auth/partition/all-partitions?ver=15.1.0.1"
+            }
+        }
+    ]
+}
