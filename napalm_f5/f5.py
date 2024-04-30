@@ -198,10 +198,11 @@ class F5Driver(NetworkDriver):
 
     def get_snmp_information(self):
         sys_info = self._get_system_information()
+        device_info = self._get_device_info()
         snmp_info = {
             "contact": sys_info["sysContact"] or "",
             "location": sys_info["sysLocation"] or "",
-            "chassis_id": sys_info.get("description") or "",
+            "chassis_id": device_info["chassisId"],
             "community": {},
         }
         communities = self.device.load("/mgmt/tm/sys/snmp/communities/")
