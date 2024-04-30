@@ -271,17 +271,17 @@ class F5Driver(NetworkDriver):
         return mac_list
 
     def get_users(self):
-        api_users = self.device.Management.UserManagement.get_list()
-        usernames = [x["name"] for x in api_users]
-        passwords = self.device.Management.UserManagement.get_encrypted_password(usernames)
-        users_dict = {
-            username: {
-                "level": 0,
-                "password": password,
-                "sshkeys": [],
+        """F5 version of `get_users` method, see NAPALM for documentation."""
+        users_dict = {}
+        api_users = self.device.load("/mgmt/tm/auth/user/")
+        for user in api_users:
+            users_dict = {
+                user["name"]: {
+                    "level": 15 if user["role"] == "admin" else 0,
+                    "password": user["encryptedPassword"],
+                    "sshkeys": [],
+                }
             }
-            for (username, password) in zip(usernames, passwords)
-        }
         return users_dict
 
     def get_ntp_servers(self) -> dict:
