@@ -1,0 +1,14 @@
+{
+    "kind": "tm:sys:ntp:ntpstate",
+    "selfLink": "https://localhost/mgmt/tm/sys/ntp?ver=15.1.0.1",
+    "servers": [
+        "1.us.pool.ntp.org",
+        "2.us.pool.ntp.org",
+        "3.us.pool.ntp.org"
+    ],
+    "timezone": "America/Los_Angeles",
+    "restrictReference": {
+        "link": "https://localhost/mgmt/tm/sys/ntp/restrict?ver=15.1.0.1",
+        "isSubcollection": true
+    }
+}
