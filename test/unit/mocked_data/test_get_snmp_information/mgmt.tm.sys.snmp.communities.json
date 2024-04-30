@@ -1,0 +1,11 @@
+{
+    "kind": "tm:sys:snmp:communities:communitiesstate",
+    "name": "/Common/comm-public",
+    "fullPath": "/Common/comm-public",
+    "generation": 0,
+    "selfLink": "https://localhost/mgmt/tm/sys/snmp/communities/~Common~comm-public?ver=15.1.0.1",
+    "access": "ro",
+    "communityName": "public",
+    "ipv6": "disabled",
+    "source": "default"
+}
