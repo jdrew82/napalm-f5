@@ -158,8 +158,7 @@ class F5Driver(NetworkDriver):
     def is_alive(self):
         if self.device:
             return {"is_alive": True}
-        else:
-            return {"is_alive": False}
+        return {"is_alive": False}
 
     def _get_uptime(self):
         return self.device.command("/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": "-c 'uptime'"}).lstrip()
