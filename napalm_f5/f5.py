@@ -277,9 +277,9 @@ class F5Driver(NetworkDriver):
         api_users = self.device.load("/mgmt/tm/auth/user/")
         for user in api_users:
             users_dict = {
-                user["name"]: {
-                    "level": 15 if user["role"] == "admin" else 0,
-                    "password": user["encryptedPassword"],
+                user.properties["name"]: {
+                    "level": 15 if user.properties["role"] == "admin" else 0,
+                    "password": user.properties["encryptedPassword"],
                     "sshkeys": [],
                 }
             }
