@@ -299,7 +299,7 @@ class F5Driver(NetworkDriver):
         result = self.device.load("/mgmt/tm/net/self/")
         interfaces_ip = {}
         for ip in result:
-            host, prefix = tuple(ip["address"].split("/"))
+            host, prefix = tuple(ip.properties["address"].split("/"))
             if ":" in ip.properties["address"]:
                 interfaces_ip[ip.properties["fullPath"]] = {"ipv6": {host: {"prefix_length": int(prefix)}}}
             else:
