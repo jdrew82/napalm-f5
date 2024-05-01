@@ -14,3 +14,7 @@
 
 """napalm-f5 package."""
 from napalm_f5.f5 import F5Driver
+
+__version__ = "1.0.0"
+
+__all__ = ("F5Driver",)
