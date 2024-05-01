@@ -56,7 +56,7 @@ exclude = '''
 '''
 
 [tool.pylint.master]
-ignore=".venv"
+ignore-paths=".venv"
 jobs = 0
 
 [tool.pylint.basic]
