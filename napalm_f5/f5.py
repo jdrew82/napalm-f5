@@ -87,6 +87,11 @@ class F5Driver(NetworkDriver):
             self.filename = os.path.basename(filename)
             try:
                 self._upload_scf(filename)
+                data = {
+                    "command": "load",
+                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": False},
+                }
+                self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
                 raise ReplaceConfigException(err) from err
 
@@ -134,6 +139,11 @@ class F5Driver(NetworkDriver):
             self.filename = os.path.basename(filename)
             try:
                 self._upload_scf(filename)
+                data = {
+                    "command": "load",
+                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": True},
+                }
+                self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
                 raise MergeConfigException(err) from err
 
