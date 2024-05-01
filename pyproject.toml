@@ -29,6 +29,7 @@ pytest-pythonpath = "*"
 pylama = "*"
 flake8-import-order = "*"
 black = "*"
+mock = "*"
 
 
 [tool.black]
