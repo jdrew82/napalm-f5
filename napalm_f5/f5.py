@@ -137,16 +137,16 @@ class F5Driver(NetworkDriver):
             except Exception as err:
                 raise MergeConfigException(err) from err
 
-    def commit_config(self):
+    def commit_config(self, message: str = "") -> None:  # pylint: disable=arguments-differ
+        """F5 version of 'commit_config' method, see NAPALM for documentation.
+
+        Args:
+            message (str): Optional - configuration session commit message
+        """
         try:
-            self.device.System.ConfigSync.install_single_configuration_file(
-                filename=self.filename,
-                load_flag="LOAD_HIGH_LEVEL_CONFIG",
-                passphrase="",
-                tarfile="",
-                merge=not self.config_replace,
-            )
-        except bigsuds.OperationFailed as err:
+            config = self.device.load("/mgmt/tm/sys/config")
+            self.device.save(config)
+        except RESTAPIError as err:
             raise CommitConfigException(err) from err
 
     def discard_config(self):
