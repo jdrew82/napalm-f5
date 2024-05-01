@@ -150,9 +150,13 @@ class F5Driver(NetworkDriver):
             raise CommitConfigException(err) from err
 
     def discard_config(self):
+        """F5 version of 'discard_config' method, see NAPALM for documentation."""
         try:
-            self.device.System.ConfigSync.delete_single_configuration_file(filename=self.filename)
-        except bigsuds.OperationFailed as err:
+            self.device.command(
+                "/mgmt/tm/util/bash",
+                {"command": "run", "utilCmdArgs": f'-c "rm /var/config/rest/downloads/{self.filename}"'},
+            )
+        except RESTAPIError as err:
             raise DiscardConfigException(err) from err
 
     def is_alive(self):
