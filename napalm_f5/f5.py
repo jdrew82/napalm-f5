@@ -530,33 +530,7 @@ class F5Driver(NetworkDriver):
 
     def _upload_scf(self, fp):
         try:
-            chunk_size = 512 * 1024
-            filename = os.path.basename(fp)
-            size = os.path.getsize(fp)
-            start = 0
-            with open(fp, "rb") as fileobj:
-                while True:
-                    payload = base64.b64encode(fileobj.read(chunk_size))
-                    if not payload:
-                        break
-                    end = fileobj.tell()
-
-                    if start == 0 and end == size:
-                        chain_type = "FILE_FIRST_AND_LAST"
-                    elif start == 0 and end < size:
-                        chain_type = "FILE_FIRST"
-                    elif start > 0 and end < size:
-                        chain_type = "FILE_MIDDLE"
-                    elif start > 0 and end == size:
-                        chain_type = "FILE_LAST"
-
-                    self.device.System.ConfigSync.upload_file(
-                        file_name="/var/local/scf/" + filename,
-                        file_context=dict(file_data=payload, chain_type=chain_type),
-                    )
-
-                    start += len(payload)
-
+            self.device.upload("/mgmt/shared/file-transfer/uploads", fp)
         except RESTAPIError as err:
             raise ConnectionError(f"F5 API Error: {err}") from err
         except EnvironmentError as err:
