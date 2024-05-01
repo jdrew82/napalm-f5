@@ -296,14 +296,14 @@ class F5Driver(NetworkDriver):
         return {server: {} for server in ntp_servers}
 
     def get_interfaces_ip(self):
-        result = self.device.load("/mgmt/tm/net/self/").properties
+        result = self.device.load("/mgmt/tm/net/self/")
         interfaces_ip = {}
         for ip in result:
             host, prefix = tuple(ip["address"].split("/"))
-            if ":" in ip["address"]:
-                interfaces_ip[ip["fullPath"]] = {"ipv6": {host: {"prefix_length": int(prefix)}}}
+            if ":" in ip.properties["address"]:
+                interfaces_ip[ip.properties["fullPath"]] = {"ipv6": {host: {"prefix_length": int(prefix)}}}
             else:
-                interfaces_ip[ip["fullPath"]] = {"ipv4": {host: {"prefix_length": int(prefix)}}}
+                interfaces_ip[ip.properties["fullPath"]] = {"ipv4": {host: {"prefix_length": int(prefix)}}}
         return interfaces_ip
 
     def get_environment(self):
