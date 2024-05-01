@@ -524,33 +524,6 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
-name = "f5-icontrol-rest"
-version = "1.3.13"
-description = "F5 BIG-IP iControl REST API client"
-optional = false
-python-versions = "*"
-files = [
-    {file = "f5-icontrol-rest-1.3.13.tar.gz", hash = "sha256:49fffd999fb4971d6754beb0e066051175db9d9baeb8a76fca6c801dacc89359"},
-]
-
-[package.dependencies]
-requests = ">=2.5.0,<3"
-
-[[package]]
-name = "f5-sdk"
-version = "3.0.21"
-description = "F5 Networks Python SDK"
-optional = false
-python-versions = "*"
-files = [
-    {file = "f5-sdk-3.0.21.tar.gz", hash = "sha256:22890c8fd98232c14c54560ee02a59501da2df670e6a6852e6eda6364363963a"},
-]
-
-[package.dependencies]
-f5-icontrol-rest = ">=1.3.13,<2.0.0"
-six = ">=1.9.0,<2.0.0"
-
-[[package]]
 name = "flake8"
 version = "5.0.4"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -1954,4 +1927,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "4360ec4964d3c8d75028896ac21a1d015fbe6dd477dd848c8c7dba0d870e916a"
+content-hash = "f882ed3024b9807754f8947479261b47dc6ddb2f74f5da50c32289b8237f9060"
