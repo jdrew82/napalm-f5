@@ -278,7 +278,7 @@ class F5Driver(NetworkDriver):
         for user in api_users:
             users_dict = {
                 user.properties["name"]: {
-                    "level": 15 if user.properties.get("role") == "admin" else 0,
+                    "level": 15 if user.properties["partitionAccess"][0]["role"] == "admin" else 0,
                     "password": user.properties["encryptedPassword"],
                     "sshkeys": [],
                 }
