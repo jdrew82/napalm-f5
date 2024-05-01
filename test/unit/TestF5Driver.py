@@ -16,8 +16,9 @@
 
 import unittest
 
+from napalm.base.test.base import TestConfigNetworkDriver
+
 from napalm_f5 import f5
-from napalm_base.test.base import TestConfigNetworkDriver
 
 
 class TestConfigF5Driver(unittest.TestCase, TestConfigNetworkDriver):

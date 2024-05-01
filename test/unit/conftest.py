@@ -1,14 +1,16 @@
 """Test fixtures."""
 
 import ast
-import pytest
 import re
 
 from mock import Mock
-from napalm_base.test import conftest as parent_conftest
-from napalm_base.test.double import BaseTestDouble
+
+from napalm.base.test import conftest as parent_conftest
+from napalm.base.test.double import BaseTestDouble
 
 from napalm_f5 import f5
+
+import pytest
 
 
 @pytest.fixture(scope="class")

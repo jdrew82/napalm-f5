@@ -1,18 +1,17 @@
-# Originally forked from https://github.com/napalm-automation-community/napalm-f5
-# Inroducting support to python3 and get_config method to work w/ Nautobot.
-
 """
 Napalm driver for F5.
 Read https://napalm.readthedocs.io for more information.
 """
-import base64
+
 import os
 from typing import Dict, List, Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
+
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
-from napalm_f5.env import LIMITS, ALERT
+
+from napalm_f5.env import ALERT, LIMITS
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
 
 

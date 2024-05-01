@@ -14,11 +14,12 @@
 
 """Tests."""
 
+import json
 import unittest
 
+from napalm.base.test.base import TestConfigNetworkDriver, TestGettersNetworkDriver
+
 from napalm_f5 import f5
-from napalm_base.test.base import TestConfigNetworkDriver, TestGettersNetworkDriver
-import json
 
 
 class TestConfigDriver(unittest.TestCase, TestConfigNetworkDriver):
