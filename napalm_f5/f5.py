@@ -296,7 +296,7 @@ class F5Driver(NetworkDriver):
         return {server: {} for server in ntp_servers}
 
     def get_interfaces_ip(self):
-        result = self.device.load("/mgmt/tm/net/self/")
+        result = self.device.load("/mgmt/tm/net/self/").properties
         interfaces_ip = {}
         for ip in result:
             host, prefix = tuple(ip["address"].split("/"))
