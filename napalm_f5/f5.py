@@ -194,7 +194,7 @@ class F5Driver(NetworkDriver):
         mac_addresses = [intf.properties["macAddress"] for intf in query]
         return mac_addresses
 
-    def _get_interfaces_active_media(self, query) -> list[bool]:
+    def _get_interfaces_active_media(self, query) -> List[bool]:
         active_media = [intf.properties["mediaActive"] for intf in query]
         return active_media
 
