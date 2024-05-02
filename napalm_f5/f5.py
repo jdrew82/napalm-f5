@@ -247,42 +247,43 @@ class F5Driver(NetworkDriver):
         return snmp_info
 
     def get_mac_address_table(self):
-        vlan_list = self.device.Networking.VLAN.get_list()
-        vlan_ids = self.device.Networking.VLAN.get_vlan_id(vlan_list)
-        dynamic_mac_list = self.device.Networking.VLAN.get_dynamic_forwarding(vlan_list)
-        static_mac_list = self.device.Networking.VLAN.get_static_forwarding(vlan_list)
+        raise NotImplementedError
+        # vlan_list = self.device.Networking.VLAN.get_list()
+        # vlan_ids = self.device.Networking.VLAN.get_vlan_id(vlan_list)
+        # dynamic_mac_list = self.device.Networking.VLAN.get_dynamic_forwarding(vlan_list)
+        # static_mac_list = self.device.Networking.VLAN.get_static_forwarding(vlan_list)
 
-        mac_list = list()
+        # mac_list = list()
 
-        for vlan_id, vlan, dynamic_entry in zip(vlan_ids, vlan_list, dynamic_mac_list):
-            for fdb in dynamic_entry:
-                mac_list.append(
-                    {
-                        "mac": fdb["mac_address"],
-                        "interface": vlan,
-                        "vlan": vlan_id,
-                        "static": False,
-                        "active": True,
-                        "moves": 0,
-                        "last_move": 0.0,
-                    }
-                )
+        # for vlan_id, vlan, dynamic_entry in zip(vlan_ids, vlan_list, dynamic_mac_list):
+        #     for fdb in dynamic_entry:
+        #         mac_list.append(
+        #             {
+        #                 "mac": fdb["mac_address"],
+        #                 "interface": vlan,
+        #                 "vlan": vlan_id,
+        #                 "static": False,
+        #                 "active": True,
+        #                 "moves": 0,
+        #                 "last_move": 0.0,
+        #             }
+        #         )
 
-        for vlan_id, vlan, static_entry in zip(vlan_ids, vlan_list, static_mac_list):
-            for fdb in static_entry:
-                mac_list.append(
-                    {
-                        "mac": fdb["mac_address"],
-                        "interface": vlan,
-                        "vlan": vlan_id,
-                        "static": True,
-                        "active": True,
-                        "moves": 0,
-                        "last_move": 0.0,
-                    }
-                )
+        # for vlan_id, vlan, static_entry in zip(vlan_ids, vlan_list, static_mac_list):
+        #     for fdb in static_entry:
+        #         mac_list.append(
+        #             {
+        #                 "mac": fdb["mac_address"],
+        #                 "interface": vlan,
+        #                 "vlan": vlan_id,
+        #                 "static": True,
+        #                 "active": True,
+        #                 "moves": 0,
+        #                 "last_move": 0.0,
+        #             }
+        #         )
 
-        return mac_list
+        # return mac_list
 
     def get_users(self):
         """F5 version of `get_users` method, see NAPALM for documentation."""
@@ -320,164 +321,167 @@ class F5Driver(NetworkDriver):
         return interfaces_ip
 
     def get_environment(self):
-        temperature_metrics = self.device.System.SystemInfo.get_temperature_metrics()
-        blade_temperature = self.device.System.SystemInfo.get_blade_temperature()
-        fan_metrics = self.device.System.SystemInfo.get_fan_metrics()
-        all_host_statistics = self.device.System.Statistics.get_all_host_statistics()
-        global_cpu = self.device.System.SystemInfo.get_global_cpu_usage_extended_information()
-        power_supply_metrics = self.device.System.SystemInfo.get_power_supply_metrics()
-        system_information = self.device.System.SystemInfo.get_system_information()
+        raise NotImplementedError
+        # temperature_metrics = self.device.System.SystemInfo.get_temperature_metrics()
+        # blade_temperature = self.device.System.SystemInfo.get_blade_temperature()
+        # fan_metrics = self.device.System.SystemInfo.get_fan_metrics()
+        # all_host_statistics = self.device.System.Statistics.get_all_host_statistics()
+        # global_cpu = self.device.System.SystemInfo.get_global_cpu_usage_extended_information()
+        # power_supply_metrics = self.device.System.SystemInfo.get_power_supply_metrics()
+        # system_information = self.device.System.SystemInfo.get_system_information()
 
-        model = "{}_{}".format(system_information["product_category"], system_information["platform"])
+        # model = "{}_{}".format(system_information["product_category"], system_information["platform"])
 
-        # TEMPERATURE metrics
-        temperatures = dict()
-        if model in LIMITS:
-            # Parse chassis / appliance temperatures
-            for sensor in temperature_metrics["temperatures"]:
-                sensor_id = sensor[0]["value"]
-                sensor_value = sensor[1]["value"]
+        # # TEMPERATURE metrics
+        # temperatures = dict()
+        # if model in LIMITS:
+        #     # Parse chassis / appliance temperatures
+        #     for sensor in temperature_metrics["temperatures"]:
+        #         sensor_id = sensor[0]["value"]
+        #         sensor_value = sensor[1]["value"]
 
-                sensor_max = LIMITS[model][str(sensor_id)][0]
-                sensor_location = LIMITS[model][str(sensor_id)][1]
+        #         sensor_max = LIMITS[model][str(sensor_id)][0]
+        #         sensor_location = LIMITS[model][str(sensor_id)][1]
 
-                temperatures[sensor_location] = {
-                    "temperature": float(sensor_value),
-                    "is_alert": True if sensor_value >= sensor_max * ALERT else False,
-                    "is_critical": True if sensor_value >= sensor_max else False,
-                }
-            # Parse blades' temperatures
-            for sensor in blade_temperature:
-                sensor_value = sensor["temperature"]
-                sensor_max = LIMITS[model][sensor["location"]][0]
+        #         temperatures[sensor_location] = {
+        #             "temperature": float(sensor_value),
+        #             "is_alert": True if sensor_value >= sensor_max * ALERT else False,
+        #             "is_critical": True if sensor_value >= sensor_max else False,
+        #         }
+        #     # Parse blades' temperatures
+        #     for sensor in blade_temperature:
+        #         sensor_value = sensor["temperature"]
+        #         sensor_max = LIMITS[model][sensor["location"]][0]
 
-                temperatures[sensor["location"]] = {
-                    "temperature": float(sensor_value),
-                    "is_alert": True if sensor_value >= sensor_max * ALERT else False,
-                    "is_critical": True if sensor_value >= sensor_max else False,
-                }
+        #         temperatures[sensor["location"]] = {
+        #             "temperature": float(sensor_value),
+        #             "is_alert": True if sensor_value >= sensor_max * ALERT else False,
+        #             "is_critical": True if sensor_value >= sensor_max else False,
+        #         }
 
-        # FAN metrics
-        # Use fan identifier as a location.
-        # (iControl API doesn't provide fans' locations.)
-        fans = {fan[0]["value"]: {"status": True if fan[1]["value"] == 1 else False} for fan in fan_metrics["fans"]}
+        # # FAN metrics
+        # # Use fan identifier as a location.
+        # # (iControl API doesn't provide fans' locations.)
+        # fans = {fan[0]["value"]: {"status": True if fan[1]["value"] == 1 else False} for fan in fan_metrics["fans"]}
 
-        # CPU metrics
-        cpu_usage = -1
-        for stat in global_cpu["statistics"]:
-            if stat["type"] == "STATISTIC_CPU_INFO_ONE_MIN_AVG_USAGE_RATIO":
-                cpu_usage = self.convert_to_64_bit(stat["value"])
+        # # CPU metrics
+        # cpu_usage = -1
+        # for stat in global_cpu["statistics"]:
+        #     if stat["type"] == "STATISTIC_CPU_INFO_ONE_MIN_AVG_USAGE_RATIO":
+        #         cpu_usage = self.convert_to_64_bit(stat["value"])
 
-        cpus = {"0": {"%usage": float(cpu_usage)}}
+        # cpus = {"0": {"%usage": float(cpu_usage)}}
 
-        # Power Supply metrics
-        power = dict()
-        for ps in power_supply_metrics["power_supplies"]:
-            for metric in ps:
-                if metric["metric_type"] == "PS_INDEX":
-                    ps_index = metric["value"]
-                elif metric["metric_type"] == "PS_STATE":
-                    ps_state = metric["value"]
-                elif metric["metric_type"] == "PS_INPUT_STATE":
-                    ps_input_state = metric["value"]
-                elif metric["metric_type"] == "PS_OUTPUT_STATE":
-                    ps_output_state = metric["value"]
-                elif metric["metric_type"] == "PS_FAN_STATE":
-                    ps_fan_state = metric["value"]
+        # # Power Supply metrics
+        # power = dict()
+        # for ps in power_supply_metrics["power_supplies"]:
+        #     for metric in ps:
+        #         if metric["metric_type"] == "PS_INDEX":
+        #             ps_index = metric["value"]
+        #         elif metric["metric_type"] == "PS_STATE":
+        #             ps_state = metric["value"]
+        #         elif metric["metric_type"] == "PS_INPUT_STATE":
+        #             ps_input_state = metric["value"]
+        #         elif metric["metric_type"] == "PS_OUTPUT_STATE":
+        #             ps_output_state = metric["value"]
+        #         elif metric["metric_type"] == "PS_FAN_STATE":
+        #             ps_fan_state = metric["value"]
 
-            power[ps_index] = {
-                "status": (
-                    True
-                    if all(v > 0 for v in [ps_index, ps_state, ps_input_state, ps_output_state, ps_fan_state])
-                    else False
-                ),
-                "output": -1.0,
-                "capacity": -1.0,
-            }
+        #     power[ps_index] = {
+        #         "status": (
+        #             True
+        #             if all(v > 0 for v in [ps_index, ps_state, ps_input_state, ps_output_state, ps_fan_state])
+        #             else False
+        #         ),
+        #         "output": -1.0,
+        #         "capacity": -1.0,
+        #     }
 
-        total_ram = 0
-        used_ram = 0
-        for host in all_host_statistics["statistics"]:
-            for stat in host["statistics"]:
-                if stat["type"] == "STATISTIC_MEMORY_TOTAL_BYTES":
-                    total_ram = total_ram + self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_MEMORY_USED_BYTES":
-                    used_ram = used_ram + self.convert_to_64_bit(stat["value"])
+        # total_ram = 0
+        # used_ram = 0
+        # for host in all_host_statistics["statistics"]:
+        #     for stat in host["statistics"]:
+        #         if stat["type"] == "STATISTIC_MEMORY_TOTAL_BYTES":
+        #             total_ram = total_ram + self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_MEMORY_USED_BYTES":
+        #             used_ram = used_ram + self.convert_to_64_bit(stat["value"])
 
-        memory = {
-            "available_ram": total_ram - used_ram,
-            "used_ram": used_ram,
-        }
+        # memory = {
+        #     "available_ram": total_ram - used_ram,
+        #     "used_ram": used_ram,
+        # }
 
-        env_dict = {
-            "memory": memory,
-            "power": power,
-            "cpu": cpus,
-            "temperature": temperatures,
-            "fans": fans,
-        }
+        # env_dict = {
+        #     "memory": memory,
+        #     "power": power,
+        #     "cpu": cpus,
+        #     "temperature": temperatures,
+        #     "fans": fans,
+        # }
 
-        return env_dict
+        # return env_dict
 
     def get_network_instances(self, name=""):
-        rd_list = self.device.Networking.RouteDomainV2.get_list()
-        rd_description_list = self.device.Networking.RouteDomainV2.get_description(rd_list)
-        rd_id_list = self.device.Networking.RouteDomainV2.get_identifier(rd_list)
-        rd_vlan_list = self.device.Networking.RouteDomainV2.get_vlan(rd_list)
+        raise NotImplementedError
+        # rd_list = self.device.Networking.RouteDomainV2.get_list()
+        # rd_description_list = self.device.Networking.RouteDomainV2.get_description(rd_list)
+        # rd_id_list = self.device.Networking.RouteDomainV2.get_identifier(rd_list)
+        # rd_vlan_list = self.device.Networking.RouteDomainV2.get_vlan(rd_list)
 
-        instances = {}
+        # instances = {}
 
-        for rd, description, rd_id, rd_vlan in zip(rd_list, rd_description_list, rd_id_list, rd_vlan_list):
-            if rd.split("/")[-1] == "0":
-                instance_name = "default"
-            else:
-                instance_name = rd.split("/")[-1]
+        # for rd, description, rd_id, rd_vlan in zip(rd_list, rd_description_list, rd_id_list, rd_vlan_list):
+        #     if rd.split("/")[-1] == "0":
+        #         instance_name = "default"
+        #     else:
+        #         instance_name = rd.split("/")[-1]
 
-            instances[instance_name] = {
-                "interfaces": {"interface": {vlan: {} for vlan in rd_vlan}},
-                "state": {"route_distinguisher": str(rd_id)},
-                "name": instance_name,
-                "type": "DEFAULT_INSTANCE" if instance_name == "default" else "L3VRF",
-            }
+        #     instances[instance_name] = {
+        #         "interfaces": {"interface": {vlan: {} for vlan in rd_vlan}},
+        #         "state": {"route_distinguisher": str(rd_id)},
+        #         "name": instance_name,
+        #         "type": "DEFAULT_INSTANCE" if instance_name == "default" else "L3VRF",
+        #     }
 
-        return {name: instances.get(name, {})} if name else instances
+        # return {name: instances.get(name, {})} if name else instances
 
     def get_interfaces_counters(self):
-        try:
-            icr_statistics = self._get_interfaces_all_statistics()
-        except RESTAPIError as err:
-            raise ConnectionError(f"get_interfaces: {err}") from err
+        raise NotImplementedError
+        # try:
+        #     icr_statistics = self._get_interfaces_all_statistics()
+        # except RESTAPIError as err:
+        #     raise ConnectionError(f"get_interfaces: {err}") from err
 
-        counters = {}
-        for x in icr_statistics["statistics"]:
-            if_name = x["interface_name"]
-            counters[if_name] = {}
-            counters[if_name]["tx_broadcast_packets"] = -1
-            counters[if_name]["rx_broadcast_packets"] = -1
+        # counters = {}
+        # for x in icr_statistics["entries"]:
+        #     if_name = x["nestedStats"]["entries"]["tmName"]["description"]
+        #     counters[if_name] = {}
+        #     counters[if_name]["tx_broadcast_packets"] = -1
+        #     counters[if_name]["rx_broadcast_packets"] = -1
 
-            for stat in x["statistics"]:
-                if stat["type"] == "STATISTIC_ERRORS_IN":
-                    counters[if_name]["rx_errors"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_ERRORS_OUT":
-                    counters[if_name]["tx_errors"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_DROPPED_PACKETS_IN":
-                    counters[if_name]["rx_discards"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_DROPPED_PACKETS_OUT":
-                    counters[if_name]["tx_discards"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_BYTES_IN":
-                    counters[if_name]["rx_octets"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_BYTES_OUT":
-                    counters[if_name]["tx_octets"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_PACKETS_IN":
-                    counters[if_name]["rx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_PACKETS_OUT":
-                    counters[if_name]["tx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_MULTICASTS_IN":
-                    counters[if_name]["rx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
-                elif stat["type"] == "STATISTIC_MULTICASTS_OUT":
-                    counters[if_name]["tx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
+        #     for stat in x["nestedStats"]["entries"]:
+        #         if stat["type"] == "STATISTIC_ERRORS_IN":
+        #             counters[if_name]["rx_errors"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_ERRORS_OUT":
+        #             counters[if_name]["tx_errors"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_DROPPED_PACKETS_IN":
+        #             counters[if_name]["rx_discards"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_DROPPED_PACKETS_OUT":
+        #             counters[if_name]["tx_discards"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_BYTES_IN":
+        #             counters[if_name]["rx_octets"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_BYTES_OUT":
+        #             counters[if_name]["tx_octets"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_PACKETS_IN":
+        #             counters[if_name]["rx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_PACKETS_OUT":
+        #             counters[if_name]["tx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_MULTICASTS_IN":
+        #             counters[if_name]["rx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
+        #         elif stat["type"] == "STATISTIC_MULTICASTS_OUT":
+        #             counters[if_name]["tx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
 
-        return counters
+        # return counters
 
     def get_interfaces(self):
         def if_speed(active_media):
