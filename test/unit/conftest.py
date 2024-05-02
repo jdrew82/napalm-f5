@@ -33,7 +33,7 @@ def pytest_generate_tests(metafunc):
     parent_conftest.pytest_generate_tests(metafunc, __file__)
 
 
-class PatchedF5Driver(f5.F5Driver):
+class PatchedF5Driver(f5.F5Driver):  # pylint: disable=abstract-method
     """Patched F5 Driver."""
 
     def __init__(self, hostname, username, password, timeout=60, optional_args=None):

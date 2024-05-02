@@ -15,7 +15,7 @@ from napalm_f5.env import ALERT, LIMITS
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
 
 
-class F5Driver(NetworkDriver):
+class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
     """F5 REST API based NAPALM driver."""
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -94,8 +94,12 @@ class F5Driver(NetworkDriver):
             except Exception as err:
                 raise ReplaceConfigException(err) from err
 
-    def get_config(
-        self, retrieve: str = "all", full: bool = False, sanitized: bool = False, format: str = "text"
+    def get_config(  # pylint: disable=redefined-builtin
+        self,
+        retrieve: str = "all",
+        full: bool = False,
+        sanitized: bool = False,
+        format: str = "text",
     ) -> dict:
         """F5 version of 'get_config' method, see NAPALM for documentation.
 
