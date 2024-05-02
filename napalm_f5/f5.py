@@ -69,10 +69,30 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         Returns:
             Dict[str, str]: Dictionary of commands sent and their associated response.
         """
-        raise NotImplementedError
+        results = {}
+        for command in commands:
+            results[command] = self.device.command(
+                "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": f'-c "{command}"'}
+            )
+        return results
 
     def load_replace_candidate(self, filename=None, config=None):
-        raise NotImplementedError
+        self.config_replace = True
+
+        if config:
+            raise NotImplementedError
+
+        if filename:
+            self.filename = os.path.basename(filename)
+            try:
+                self._upload_scf(filename)
+                data = {
+                    "command": "load",
+                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": False},
+                }
+                self.device.command("/mgmt/tm/sys/config", data)
+            except Exception as err:
+                raise ReplaceConfigException(err) from err
 
     def get_config(  # pylint: disable=redefined-builtin
         self,
@@ -113,7 +133,22 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return {"running": config, "candidate": "", "startup": ""}
 
     def load_merge_candidate(self, filename=None, config=None):
-        raise NotImplementedError
+        self.config_replace = False
+
+        if config:
+            raise NotImplementedError
+
+        if filename:
+            self.filename = os.path.basename(filename)
+            try:
+                self._upload_scf(filename)
+                data = {
+                    "command": "load",
+                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": True},
+                }
+                self.device.command("/mgmt/tm/sys/config", data)
+            except Exception as err:
+                raise MergeConfigException(err) from err
 
     def commit_config(self, message: str = "") -> None:  # pylint: disable=arguments-differ
         """F5 version of 'commit_config' method, see NAPALM for documentation.
@@ -121,11 +156,21 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         Args:
             message (str): Optional - configuration session commit message
         """
-        raise NotImplementedError
+        try:
+            config = self.device.load("/mgmt/tm/sys/config")
+            self.device.save(config)
+        except RESTAPIError as err:
+            raise CommitConfigException(err) from err
 
     def discard_config(self):
         """F5 version of 'discard_config' method, see NAPALM for documentation."""
-        raise NotImplementedError
+        try:
+            self.device.command(
+                "/mgmt/tm/util/bash",
+                {"command": "run", "utilCmdArgs": f'-c "rm /var/config/rest/downloads/{self.filename}"'},
+            )
+        except RESTAPIError as err:
+            raise DiscardConfigException(err) from err
 
     def is_alive(self):
         """F5 version of `is_alive` method, see NAPALM for documentation."""
@@ -178,8 +223,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         description = [intf.properties["description"] if intf.properties.get("description") else "" for intf in query]
         return description
 
-    def _get_interfaces_all_statistics(self):
-        statistcs = self.device.Networking.Interfaces.get_all_statistics()
+    def _get_interfaces_all_statistics(self) -> dict:
+        statistcs = self.device.load("/mgmt/tm/net/interface/stats/").properties
         return statistcs
 
     def _get_system_information(self) -> dict:
@@ -501,4 +546,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return value
 
     def _upload_scf(self, fp):
-        raise NotImplementedError
+        try:
+            self.device.upload("/mgmt/shared/file-transfer/uploads", fp)
+        except RESTAPIError as err:
+            raise ConnectionError(f"F5 API Error: {err}") from err
+        except EnvironmentError as err:
+            raise EnvironmentError(f"Error ({err.errno}): {err.strerror}") from err
