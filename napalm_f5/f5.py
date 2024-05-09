@@ -11,7 +11,6 @@ from bigrest.bigip import BIGIP, RESTAPIError
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 
-from napalm_f5.env import ALERT, LIMITS
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException, ReadOnlyModeException
 
 
