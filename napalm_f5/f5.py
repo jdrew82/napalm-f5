@@ -284,6 +284,10 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
             ]
         return lldp_info
 
+    def get_lldp_neighbors_detail(self, interface: str = ""):
+        """F5 version of 'get_lldp_neigbors_detail' method, see NAPALM for documentation."""
+        raise NotImplementedError
+
     def get_mac_address_table(self):
         raise NotImplementedError
         # vlan_list = self.device.Networking.VLAN.get_list()
