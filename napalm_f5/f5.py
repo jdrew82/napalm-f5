@@ -533,6 +533,15 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
 
         return interfaces_dict
 
+    def get_vlans(self):
+        """F5 version of 'get_vlans' method, see NAPALM for documentation."""
+        vlans = self.device.load("/mgmt/tm/net/vlan/")
+        vlan_info = {}
+        for vlan in vlans:
+            intfs = self.device.load(f"/mgmt/tm/net/vlan/{vlan['name']}/interfaces")
+            vlan_info[vlan["tag"]] = {"name": vlan["name"], "interfaces": [intf["name"] for intf in intfs]}
+        return vlan_info
+
     @staticmethod
     def convert_to_64_bit(value):
         """Converts two 32 bit signed integers to a 64-bit unsigned integer.

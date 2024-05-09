@@ -70,7 +70,7 @@ This table identifies the currently available getters and the support for each:
 | get_route_to              | ❌        |
 | get_snmp_information      | ✅        |
 | get_users                 | ✅        |
-| get_vlans                 | ❌        |
+| get_vlans                 | ✅        |
 | is_alive                  | ✅        |
 | ping                      | ❌        |
 | traceroute                | ❌        |
