@@ -168,7 +168,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         try:
             self.device.command(
                 "/mgmt/tm/util/bash",
-                {"command": "run", "utilCmdArgs": f'-c "rm /var/config/rest/downloads/{self.filename}"'},
+                {"command": "run", "utilCmdArgs": f'-c "rm /tmp/{self.filename}"'},
             )
         except RESTAPIError as err:
             raise DiscardConfigException(err) from err
