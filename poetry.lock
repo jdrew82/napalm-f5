@@ -1895,6 +1895,24 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
+name = "yamllint"
+version = "1.35.1"
+description = "A linter for YAML files."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "yamllint-1.35.1-py3-none-any.whl", hash = "sha256:2e16e504bb129ff515b37823b472750b36b6de07963bd74b307341ef5ad8bdc3"},
+    {file = "yamllint-1.35.1.tar.gz", hash = "sha256:7a003809f88324fd2c877734f2d575ee7881dd9043360657cc8049c809eba6cd"},
+]
+
+[package.dependencies]
+pathspec = ">=0.5.3"
+pyyaml = "*"
+
+[package.extras]
+dev = ["doc8", "flake8", "flake8-import-order", "rstcheck[sphinx]", "sphinx"]
+
+[[package]]
 name = "yamlordereddictloader"
 version = "0.4.2"
 description = "YAML loader and dumper for PyYAML allowing to keep keys order."
@@ -1926,4 +1944,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "6706e63fbdccbdb35e7db93d539273fdce3f1118d77fe343268de86c214cc135"
+content-hash = "b01f0e91bf20324b36e3e1e5e582c1ad559483b2dc0a9a9ee4e99cbf2dd189ea"

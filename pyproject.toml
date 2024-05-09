@@ -28,6 +28,7 @@ pylama = "*"
 flake8-import-order = "*"
 black = "*"
 mock = "*"
+yamllint = "*"
 
 
 [tool.black]
