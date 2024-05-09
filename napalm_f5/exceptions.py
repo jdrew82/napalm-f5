@@ -8,3 +8,7 @@ class DiscardConfigException(Exception):
 
 class ReplaceConfigException(Exception):
     pass
+
+
+class ReadOnlyModeException(Exception):
+    pass

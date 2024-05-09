@@ -12,7 +12,7 @@ from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 
 from napalm_f5.env import ALERT, LIMITS
-from napalm_f5.exceptions import CommitConfigException, DiscardConfigException
+from napalm_f5.exceptions import CommitConfigException, DiscardConfigException, ReadOnlyModeException
 
 
 class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
@@ -29,6 +29,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
             password (str): Password to authenticate with against device.
             timeout (int, optional): Timeout for requests.. Defaults to 60.
             optional_args (Optional[dict], optional): Optional arguments to use with driver. Defaults to None.
+
+        If optional_args contains a value called 'read_only' set to True, the interactions with the device will be set to read-only disabling any changes.
         """
         self.hostname = hostname
         self.username = username
@@ -72,6 +74,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
             Dict[str, str]: Dictionary of commands sent and their associated response.
         """
         results = {}
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
+
         for command in commands:
             results[command] = self.device.command(
                 "/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": f'-c "{command}"'}
@@ -84,6 +89,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
 
         if config:
             raise NotImplementedError
+
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
 
         if filename:
             self.filename = os.path.basename(filename)
@@ -142,6 +150,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         if config:
             raise NotImplementedError
 
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
+
         if filename:
             self.filename = os.path.basename(filename)
             try:
@@ -160,6 +171,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         Args:
             message (str): Optional - configuration session commit message
         """
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
+
         try:
             self.device.command("/mgmt/tm/sys/config", {"command": "save"})
         except RESTAPIError as err:
@@ -167,6 +181,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
 
     def discard_config(self):
         """F5 version of 'discard_config' method, see NAPALM for documentation."""
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
+
         try:
             self.device.command(
                 "/mgmt/tm/util/bash",
@@ -561,6 +578,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return value
 
     def _upload_scf(self, fp):
+        if self.optional_args["read_only"]:
+            raise ReadOnlyModeException
+
         try:
             self.device.upload("/mgmt/shared/file-transfer/uploads", fp)
             # we need to move the file to a whitelisted directory and /tmp is the easiest as it's cleared upon reboot
