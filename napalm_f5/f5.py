@@ -159,8 +159,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
             message (str): Optional - configuration session commit message
         """
         try:
-            config = self.device.load("/mgmt/tm/sys/config")
-            self.device.save(config)
+            self.device.command("/mgmt/tm/sys/config", {"command": "save"})
         except RESTAPIError as err:
             raise CommitConfigException(err) from err
 
