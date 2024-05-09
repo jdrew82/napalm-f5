@@ -88,7 +88,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
                 self._upload_scf(filename)
                 data = {
                     "command": "load",
-                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": False},
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": False}],
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
@@ -144,7 +144,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
                 self._upload_scf(filename)
                 data = {
                     "command": "load",
-                    "options": {"file": f"/mgmt/shared/file-transfer/uploads/{self.filename}", "merge": True},
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": True}],
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
