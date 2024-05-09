@@ -548,6 +548,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
     def _upload_scf(self, fp):
         try:
             self.device.upload("/mgmt/shared/file-transfer/uploads", fp)
+            # we need to move the file to a whitelisted directory and /tmp is the easiest as it's cleared upon reboot
+            self.cli(commands=[f"mv /var/config/rest/downloads/{fp} /tmp/"])
         except RESTAPIError as err:
             raise ConnectionError(f"F5 API Error: {err}") from err
         except EnvironmentError as err:
