@@ -14,6 +14,7 @@
 
 """napalm-f5 package."""
 from importlib import metadata
+
 from napalm_f5.f5 import F5Driver
 
 __version__ = metadata.version(__name__)

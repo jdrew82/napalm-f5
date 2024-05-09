@@ -14,7 +14,7 @@ from napalm.base.exceptions import ConnectionException, MergeConfigException, Re
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException, ReadOnlyModeException
 
 
-class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
+class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-instance-attributes, too-many-public-methods
     """F5 REST API based NAPALM driver."""
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -530,16 +530,15 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         def if_speed(active_media):
             if "100000" in active_media:
                 return 100000
-            elif "40000" in active_media:
+            if "40000" in active_media:
                 return 40000
-            elif "10000" in active_media:
+            if "10000" in active_media:
                 return 10000
-            elif "1000" in active_media:
+            if "1000" in active_media:
                 return 1000
-            elif "100" in active_media:
+            if "100" in active_media:
                 return 100
-            else:
-                return -1
+            return -1
 
         try:
             intf_query = self.device.load("/mgmt/tm/net/interface/")
