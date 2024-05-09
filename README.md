@@ -57,7 +57,7 @@ This table identifies the currently available getters and the support for each:
 | get_interfaces_counters   | ❌        |
 | get_interfaces_ip         | ✅        |
 | get_ipv6_neighbors_table  | ❌        |
-| get_lldp_neighbors        | ❌        |
+| get_lldp_neighbors        | ✅        |
 | get_lldp_neighbors_detail | ❌        |
 | get_mac_address_table     | ❌        |
 | get_network_instances     | ❌        |

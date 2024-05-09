@@ -271,6 +271,19 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
 
         return snmp_info
 
+    def get_lldp_neighbors(self):
+        """F5 version of 'get_lldp_neigbors' method, see NAPALM for documentation."""
+        lldp_info = {}
+        lldp_neighbors = self.device.load("/mgmt/tm/net/lldp-neighbors?options=all-properties")
+        for neighbor in lldp_neighbors:
+            lldp_info[neighbor.properties["localInterface"]["description"]] = [
+                {
+                    "hostname": neighbor.properties["chassisId"]["description"],
+                    "port": neighbor.properties["portId"]["description"],
+                }
+            ]
+        return lldp_info
+
     def get_mac_address_table(self):
         raise NotImplementedError
         # vlan_list = self.device.Networking.VLAN.get_list()
