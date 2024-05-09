@@ -7,7 +7,7 @@
 
 This is a community version of [NAPALM](https://napalm.readthedocs.io/) for the F5 BIG-IP operating system. It is intended for use with the REST API starting in version 11.5. For standard tutorials and an overview of NAPALM, please review their documentation.
 
-# Configuration Support
+## Configuration Support
 
 This table identifies the currently available configuration methods supported:
 
@@ -39,7 +39,7 @@ with driver(f5_device, f5_user, f5_password, optional_args=optional_args) as dev
 
 As shown in the example above, the use of NAPALM's context manager is supported and is recommended for use.
 
-# Supported Getters
+## Supported Getters
 
 This table identifies the currently available getters and the support for each:
 
@@ -74,3 +74,5 @@ This table identifies the currently available getters and the support for each:
 | is_alive                  | ✅        |
 | ping                      | ❌        |
 | traceroute                | ❌        |
+
+> NOTE: This driver has a `read-only mode` feature that will disable any driver functions that can make changes on the connected Device. To enable this feature you simply need to pass `"read_only" = True` in optional_args.
