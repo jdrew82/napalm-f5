@@ -557,8 +557,11 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         vlans = self.device.load("/mgmt/tm/net/vlan/")
         vlan_info = {}
         for vlan in vlans:
-            intfs = self.device.load(f"/mgmt/tm/net/vlan/{vlan['name']}/interfaces")
-            vlan_info[vlan["tag"]] = {"name": vlan["name"], "interfaces": [intf["name"] for intf in intfs]}
+            intfs = self.device.load(f"/mgmt/tm/net/vlan/{vlan.properties['name']}/interfaces")
+            vlan_info[vlan.properties["tag"]] = {
+                "name": vlan.properties["name"],
+                "interfaces": [intf["name"] for intf in intfs],
+            }
         return vlan_info
 
     @staticmethod
