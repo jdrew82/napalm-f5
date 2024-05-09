@@ -40,7 +40,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         self.device = None
 
         if optional_args is None:
-            optional_args = {}
+            self.optional_args = {}
+        else:
+            self.optional_args = optional_args
 
     def open(self):
         """F5 version of `open` method, see NAPALM for documentation."""
