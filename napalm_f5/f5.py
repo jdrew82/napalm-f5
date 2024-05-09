@@ -77,6 +77,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return results
 
     def load_replace_candidate(self, filename=None, config=None):
+        """F5 version of 'load_replace_candidate' method, see NAPALM for documentation."""
         self.config_replace = True
 
         if config:
@@ -133,6 +134,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return {"running": config, "candidate": "", "startup": ""}
 
     def load_merge_candidate(self, filename=None, config=None):
+        """F5 version of 'load_merge_candidate' method, see NAPALM for documentation."""
         self.config_replace = False
 
         if config:
@@ -232,6 +234,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         return system_information
 
     def get_snmp_information(self):
+        """F5 version of 'get_snmp_information' method, see NAPALM for documentation."""
         sys_info = self._get_system_information()
         device_info = self._get_device_info()
         snmp_info = {
@@ -488,6 +491,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method
         # return counters
 
     def get_interfaces(self):
+        """F5 version of 'get_interfaces' method, see NAPALM for documentation."""
+
         def if_speed(active_media):
             if "100000" in active_media:
                 return 100000
