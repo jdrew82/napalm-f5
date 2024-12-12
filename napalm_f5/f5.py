@@ -7,7 +7,6 @@ import os
 from typing import Dict, List, Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
-
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 
@@ -126,7 +125,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         if sanitized or full:
             raise NotImplementedError("Specified feature for get_config() is not implemented.")
 
-        if retrieve not in ["all", "recursive"]:
+        if retrieve not in ["all", "recursive", "running"]:
             raise NotImplementedError(f"Retrieve type of {retrieve} is not valid. Only running-config can be provided.")
 
         if format != "text":

@@ -17,6 +17,6 @@ from importlib import metadata
 
 from napalm_f5.f5 import F5Driver
 
-__version__ = metadata.version(__name__)
+__version__ = metadata.version("napalm_f5")
 
 __all__ = ("F5Driver",)
