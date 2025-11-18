@@ -5,7 +5,7 @@ description = "Network Automation and Programmability Abstraction Layer with Mul
 authors = ["Justin Drew <info@networktocode.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.8,<3.14"
 napalm = ">=4.0.0"
 bigrest = "^1.7.3"
 
