@@ -103,20 +103,18 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             except Exception as err:
                 raise ReplaceConfigException(err) from err
 
-    def get_config(  # pylint: disable=redefined-builtin
+    def get_config(
         self,
         retrieve: str = "all",
         full: bool = False,
         sanitized: bool = False,
-        format: str = "text",
     ) -> dict:
         """F5 version of 'get_config' method, see NAPALM for documentation.
 
         Args:
-            retrieve (string): Which configuration type you want to populate, default is full running-config. The rest will be set to “”.
-            full (bool): Retrieve all the configuration. For instance, on ios, “sh run all”.
+            retrieve (string): Which configuration type you want to populate, default is full running-config. The rest will be set to "".
+            full (bool): Retrieve all the configuration. For instance, on ios, "sh run all".
             sanitized (bool): Remove secret data. Default: False.
-            format (string): The configuration format style to be retrieved.
         Returns:
             running(string): Representation of the native running configuration
             candidate(string): Representation of the native candidate configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
@@ -127,9 +125,6 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
 
         if retrieve not in ["all", "recursive", "running"]:
             raise NotImplementedError(f"Retrieve type of {retrieve} is not valid. Only running-config can be provided.")
-
-        if format != "text":
-            raise NotImplementedError(f"Format of type {format} is not valid.")
 
         if retrieve == "recursive":
             config = self.device.command(
@@ -163,12 +158,15 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             except Exception as err:
                 raise MergeConfigException(err) from err
 
-    def commit_config(self, message: str = "") -> None:  # pylint: disable=arguments-differ
+    def commit_config(self, message: str = "", revert_in: Optional[int] = None) -> None:
         """F5 version of 'commit_config' method, see NAPALM for documentation.
 
         Args:
             message (str): Optional - configuration session commit message
+            revert_in (Optional[int]): Not supported on F5. Raises NotImplementedError if set.
         """
+        if revert_in is not None:
+            raise NotImplementedError("revert_in is not supported on F5 devices.")
         if self.optional_args["read_only"]:
             raise ReadOnlyModeException
 
@@ -196,8 +194,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             return {"is_alive": True}
         return {"is_alive": False}
 
-    def _get_uptime(self):
-        return self.device.command("/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": "-c 'uptime'"}).lstrip()
+    def _get_uptime(self) -> float:
+        result = self.device.command("/mgmt/tm/util/bash", {"command": "run", "utilCmdArgs": "-c 'cat /proc/uptime'"})
+        return float(result.split()[0])
 
     def _get_device_info(self):
         return self.device.load("/mgmt/tm/cm/device/")[0].properties
@@ -240,6 +239,10 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
     def _get_interfaces_description(self, query) -> List[str]:
         description = [intf.properties["description"] if intf.properties.get("description") else "" for intf in query]
         return description
+
+    def _get_interfaces_mtu(self, query) -> List[int]:
+        mtu = [intf.properties.get("mtu", 0) for intf in query]
+        return mtu
 
     def _get_interfaces_all_statistics(self) -> dict:
         statistcs = self.device.load("/mgmt/tm/net/interface/stats/").properties
@@ -330,12 +333,10 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         users_dict = {}
         api_users = self.device.load("/mgmt/tm/auth/user/")
         for user in api_users:
-            users_dict = {
-                user.properties["name"]: {
-                    "level": 15 if user.properties["partitionAccess"][0]["role"] == "admin" else 0,
-                    "password": user.properties["encryptedPassword"],
-                    "sshkeys": [],
-                }
+            users_dict[user.properties["name"]] = {
+                "level": 15 if user.properties["partitionAccess"][0]["role"] == "admin" else 0,
+                "password": user.properties["encryptedPassword"],
+                "sshkeys": [],
             }
         return users_dict
 
@@ -526,18 +527,18 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
     def get_interfaces(self):
         """F5 version of 'get_interfaces' method, see NAPALM for documentation."""
 
-        def if_speed(active_media):
+        def if_speed(active_media) -> float:
             if "100000" in active_media:
-                return 100000
+                return 100000.0
             if "40000" in active_media:
-                return 40000
+                return 40000.0
             if "10000" in active_media:
-                return 10000
+                return 10000.0
             if "1000" in active_media:
-                return 1000
+                return 1000.0
             if "100" in active_media:
-                return 100
-            return -1
+                return 100.0
+            return -1.0
 
         try:
             intf_query = self.device.load("/mgmt/tm/net/interface/")
@@ -547,6 +548,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             enabled_state = self._get_interfaces_enabled_state(intf_query)
             mac_address = self._get_interfaces_mac_address(intf_query)
             media_status = self._get_interfaces_media_status(intf_query)
+            mtu = self._get_interfaces_mtu(intf_query)
         except RESTAPIError as err:
             raise ConnectionError(f"get_interfaces: {err}") from err
 
@@ -558,9 +560,10 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
                 "last_flapped": -1.0,
                 "speed": if_speed(active_media),
                 "mac_address": mac_address,
+                "mtu": mtu_val,
             }
-            for (interface_name, media_status, enabled_state, description, mac_address, active_media) in zip(
-                interfaces, media_status, enabled_state, description, mac_address, active_media
+            for (interface_name, media_status, enabled_state, description, mac_address, active_media, mtu_val) in zip(
+                interfaces, media_status, enabled_state, description, mac_address, active_media, mtu
             )
         }
 
@@ -574,7 +577,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             intfs = self.device.load(f"/mgmt/tm/net/vlan/{vlan.properties['name']}/interfaces")
             vlan_info[vlan.properties["tag"]] = {
                 "name": vlan.properties["name"],
-                "interfaces": [intf["name"] for intf in intfs],
+                "interfaces": [intf.properties["name"] for intf in intfs],
             }
         return vlan_info
 
