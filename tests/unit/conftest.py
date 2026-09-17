@@ -45,7 +45,7 @@ class PatchedF5Driver(f5.F5Driver):  # pylint: disable=abstract-method
         self.device = FakeF5Device()
 
     def open(self):
-        pass
+        """Skip connecting; the test double is already attached."""
 
 
 class FakeF5Device(BaseTestDouble):
@@ -71,9 +71,9 @@ class FakeF5Device(BaseTestDouble):
         return clean.replace("/", ".") + "." + ext
 
     def load(self, path: str):
-        """Simulate BIGIP.load().
+        """Return fixture data for a GET against the given REST path.
 
-        Returns a list of RESTObject if fixture is a JSON array,
+        Yields a list of RESTObject if the fixture is a JSON array,
         or a single RESTObject if it is a JSON object.
         """
         filename = self._url_to_filename(path, "json")
@@ -84,7 +84,7 @@ class FakeF5Device(BaseTestDouble):
         return RESTObject(data)
 
     def command(self, path: str, data: dict = None) -> str:
-        """Simulate BIGIP.command(). Returns raw text fixture content."""
+        """Return raw text fixture content for a POST against the given REST path."""
         filename = self._url_to_filename(path, "txt")
         filepath = self.find_file(filename)
         return self.read_txt_file(filepath)

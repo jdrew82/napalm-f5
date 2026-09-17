@@ -1,22 +1,30 @@
-"""
-Napalm driver for F5.
+"""Napalm driver for F5.
+
 Read https://napalm.readthedocs.io for more information.
 """
 
+import inspect
 import os
 from typing import Dict, List, Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
+
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
+from napalm.base.models import ConfigDict, InterfaceCounterDict
 
 from napalm_f5.exceptions import CommitConfigException, DiscardConfigException, ReadOnlyModeException
+
+# NAPALM 5 added a `format` argument to get_config; NAPALM 4 did not. NAPALM's own
+# signature test requires an override to match the installed base class exactly, so
+# the public signature is chosen from whichever version is installed.
+BASE_GET_CONFIG_TAKES_FORMAT = "format" in inspect.signature(NetworkDriver.get_config).parameters
 
 
 class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-instance-attributes, too-many-public-methods
     """F5 REST API based NAPALM driver."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments, too-many-positional-arguments
         self, hostname: str, username: str, password: str, timeout: int = 60, optional_args: Optional[dict] = None
     ):
         """Initialize shared variables for driver.
@@ -72,7 +80,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             Dict[str, str]: Dictionary of commands sent and their associated response.
         """
         results = {}
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         for command in commands:
@@ -88,33 +96,37 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         if config:
             raise NotImplementedError
 
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         if filename:
             self.filename = os.path.basename(filename)
             try:
                 self._upload_scf(filename)
+                # /tmp here is a path on the BIG-IP, not a local temp directory.
                 data = {
                     "command": "load",
-                    "options": [{"file": f"/tmp/{self.filename}", "merge": False}],
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": False}],  # nosec B108
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
                 raise ReplaceConfigException(err) from err
 
-    def get_config(
+    def _get_config(  # pylint: disable=redefined-builtin
         self,
-        retrieve: str = "all",
-        full: bool = False,
-        sanitized: bool = False,
-    ) -> dict:
-        """F5 version of 'get_config' method, see NAPALM for documentation.
+        retrieve: str,
+        full: bool,
+        sanitized: bool,
+        format: str,
+    ) -> ConfigDict:
+        """Shared implementation behind the version-specific get_config signatures.
 
         Args:
             retrieve (string): Which configuration type you want to populate, default is full running-config. The rest will be set to "".
             full (bool): Retrieve all the configuration. For instance, on ios, "sh run all".
             sanitized (bool): Remove secret data. Default: False.
+            format (string): Configuration format to retrieve. Only "text" is supported on F5.
+
         Returns:
             running(string): Representation of the native running configuration
             candidate(string): Representation of the native candidate configuration. If the device doesnt differentiate between running and startup configuration this will an empty string
@@ -122,6 +134,9 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         """
         if sanitized or full:
             raise NotImplementedError("Specified feature for get_config() is not implemented.")
+
+        if format != "text":
+            raise NotImplementedError(f"Configuration format {format} is not supported, only 'text' is available.")
 
         if retrieve not in ["all", "recursive", "running"]:
             raise NotImplementedError(f"Retrieve type of {retrieve} is not valid. Only running-config can be provided.")
@@ -136,6 +151,29 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             )
         return {"running": config, "candidate": "", "startup": ""}
 
+    if BASE_GET_CONFIG_TAKES_FORMAT:
+
+        def get_config(  # pylint: disable=redefined-builtin, arguments-differ
+            self,
+            retrieve: str = "all",
+            full: bool = False,
+            sanitized: bool = False,
+            format: str = "text",
+        ) -> ConfigDict:
+            """F5 version of 'get_config' method, see NAPALM for documentation."""
+            return self._get_config(retrieve, full, sanitized, format)
+
+    else:
+
+        def get_config(  # pylint: disable=arguments-differ
+            self,
+            retrieve: str = "all",
+            full: bool = False,
+            sanitized: bool = False,
+        ) -> ConfigDict:
+            """F5 version of 'get_config' method, see NAPALM for documentation."""
+            return self._get_config(retrieve, full, sanitized, "text")
+
     def load_merge_candidate(self, filename=None, config=None):
         """F5 version of 'load_merge_candidate' method, see NAPALM for documentation."""
         self.config_replace = False
@@ -143,16 +181,17 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         if config:
             raise NotImplementedError
 
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         if filename:
             self.filename = os.path.basename(filename)
             try:
                 self._upload_scf(filename)
+                # /tmp here is a path on the BIG-IP, not a local temp directory.
                 data = {
                     "command": "load",
-                    "options": [{"file": f"/tmp/{self.filename}", "merge": True}],
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": True}],  # nosec B108
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
@@ -167,7 +206,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         """
         if revert_in is not None:
             raise NotImplementedError("revert_in is not supported on F5 devices.")
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         try:
@@ -177,7 +216,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
 
     def discard_config(self):
         """F5 version of 'discard_config' method, see NAPALM for documentation."""
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         try:
@@ -245,8 +284,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         return mtu
 
     def _get_interfaces_all_statistics(self) -> dict:
-        statistcs = self.device.load("/mgmt/tm/net/interface/stats/").properties
-        return statistcs
+        return self.device.load("/mgmt/tm/net/interface/stats/").properties
 
     def _get_system_information(self) -> dict:
         system_information = self.device.load("/mgmt/tm/sys/snmp/").properties
@@ -290,43 +328,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         raise NotImplementedError
 
     def get_mac_address_table(self):
+        """F5 version of 'get_mac_address_table' method, see NAPALM for documentation."""
         raise NotImplementedError
-        # vlan_list = self.device.Networking.VLAN.get_list()
-        # vlan_ids = self.device.Networking.VLAN.get_vlan_id(vlan_list)
-        # dynamic_mac_list = self.device.Networking.VLAN.get_dynamic_forwarding(vlan_list)
-        # static_mac_list = self.device.Networking.VLAN.get_static_forwarding(vlan_list)
-
-        # mac_list = list()
-
-        # for vlan_id, vlan, dynamic_entry in zip(vlan_ids, vlan_list, dynamic_mac_list):
-        #     for fdb in dynamic_entry:
-        #         mac_list.append(
-        #             {
-        #                 "mac": fdb["mac_address"],
-        #                 "interface": vlan,
-        #                 "vlan": vlan_id,
-        #                 "static": False,
-        #                 "active": True,
-        #                 "moves": 0,
-        #                 "last_move": 0.0,
-        #             }
-        #         )
-
-        # for vlan_id, vlan, static_entry in zip(vlan_ids, vlan_list, static_mac_list):
-        #     for fdb in static_entry:
-        #         mac_list.append(
-        #             {
-        #                 "mac": fdb["mac_address"],
-        #                 "interface": vlan,
-        #                 "vlan": vlan_id,
-        #                 "static": True,
-        #                 "active": True,
-        #                 "moves": 0,
-        #                 "last_move": 0.0,
-        #             }
-        #         )
-
-        # return mac_list
 
     def get_users(self):
         """F5 version of `get_users` method, see NAPALM for documentation."""
@@ -351,6 +354,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         return {server: {} for server in ntp_servers}
 
     def get_interfaces_ip(self):
+        """F5 version of 'get_interfaces_ip' method, see NAPALM for documentation."""
         result = self.device.load("/mgmt/tm/net/self/")
         interfaces_ip = {}
         for ip in result:
@@ -362,167 +366,43 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
         return interfaces_ip
 
     def get_environment(self):
+        """F5 version of 'get_environment' method, see NAPALM for documentation."""
         raise NotImplementedError
-        # temperature_metrics = self.device.System.SystemInfo.get_temperature_metrics()
-        # blade_temperature = self.device.System.SystemInfo.get_blade_temperature()
-        # fan_metrics = self.device.System.SystemInfo.get_fan_metrics()
-        # all_host_statistics = self.device.System.Statistics.get_all_host_statistics()
-        # global_cpu = self.device.System.SystemInfo.get_global_cpu_usage_extended_information()
-        # power_supply_metrics = self.device.System.SystemInfo.get_power_supply_metrics()
-        # system_information = self.device.System.SystemInfo.get_system_information()
-
-        # model = "{}_{}".format(system_information["product_category"], system_information["platform"])
-
-        # # TEMPERATURE metrics
-        # temperatures = dict()
-        # if model in LIMITS:
-        #     # Parse chassis / appliance temperatures
-        #     for sensor in temperature_metrics["temperatures"]:
-        #         sensor_id = sensor[0]["value"]
-        #         sensor_value = sensor[1]["value"]
-
-        #         sensor_max = LIMITS[model][str(sensor_id)][0]
-        #         sensor_location = LIMITS[model][str(sensor_id)][1]
-
-        #         temperatures[sensor_location] = {
-        #             "temperature": float(sensor_value),
-        #             "is_alert": True if sensor_value >= sensor_max * ALERT else False,
-        #             "is_critical": True if sensor_value >= sensor_max else False,
-        #         }
-        #     # Parse blades' temperatures
-        #     for sensor in blade_temperature:
-        #         sensor_value = sensor["temperature"]
-        #         sensor_max = LIMITS[model][sensor["location"]][0]
-
-        #         temperatures[sensor["location"]] = {
-        #             "temperature": float(sensor_value),
-        #             "is_alert": True if sensor_value >= sensor_max * ALERT else False,
-        #             "is_critical": True if sensor_value >= sensor_max else False,
-        #         }
-
-        # # FAN metrics
-        # # Use fan identifier as a location.
-        # # (iControl API doesn't provide fans' locations.)
-        # fans = {fan[0]["value"]: {"status": True if fan[1]["value"] == 1 else False} for fan in fan_metrics["fans"]}
-
-        # # CPU metrics
-        # cpu_usage = -1
-        # for stat in global_cpu["statistics"]:
-        #     if stat["type"] == "STATISTIC_CPU_INFO_ONE_MIN_AVG_USAGE_RATIO":
-        #         cpu_usage = self.convert_to_64_bit(stat["value"])
-
-        # cpus = {"0": {"%usage": float(cpu_usage)}}
-
-        # # Power Supply metrics
-        # power = dict()
-        # for ps in power_supply_metrics["power_supplies"]:
-        #     for metric in ps:
-        #         if metric["metric_type"] == "PS_INDEX":
-        #             ps_index = metric["value"]
-        #         elif metric["metric_type"] == "PS_STATE":
-        #             ps_state = metric["value"]
-        #         elif metric["metric_type"] == "PS_INPUT_STATE":
-        #             ps_input_state = metric["value"]
-        #         elif metric["metric_type"] == "PS_OUTPUT_STATE":
-        #             ps_output_state = metric["value"]
-        #         elif metric["metric_type"] == "PS_FAN_STATE":
-        #             ps_fan_state = metric["value"]
-
-        #     power[ps_index] = {
-        #         "status": (
-        #             True
-        #             if all(v > 0 for v in [ps_index, ps_state, ps_input_state, ps_output_state, ps_fan_state])
-        #             else False
-        #         ),
-        #         "output": -1.0,
-        #         "capacity": -1.0,
-        #     }
-
-        # total_ram = 0
-        # used_ram = 0
-        # for host in all_host_statistics["statistics"]:
-        #     for stat in host["statistics"]:
-        #         if stat["type"] == "STATISTIC_MEMORY_TOTAL_BYTES":
-        #             total_ram = total_ram + self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_MEMORY_USED_BYTES":
-        #             used_ram = used_ram + self.convert_to_64_bit(stat["value"])
-
-        # memory = {
-        #     "available_ram": total_ram - used_ram,
-        #     "used_ram": used_ram,
-        # }
-
-        # env_dict = {
-        #     "memory": memory,
-        #     "power": power,
-        #     "cpu": cpus,
-        #     "temperature": temperatures,
-        #     "fans": fans,
-        # }
-
-        # return env_dict
 
     def get_network_instances(self, name=""):
+        """F5 version of 'get_network_instances' method, see NAPALM for documentation."""
         raise NotImplementedError
-        # rd_list = self.device.Networking.RouteDomainV2.get_list()
-        # rd_description_list = self.device.Networking.RouteDomainV2.get_description(rd_list)
-        # rd_id_list = self.device.Networking.RouteDomainV2.get_identifier(rd_list)
-        # rd_vlan_list = self.device.Networking.RouteDomainV2.get_vlan(rd_list)
 
-        # instances = {}
+    def get_interfaces_counters(self) -> Dict[str, InterfaceCounterDict]:
+        """F5 version of 'get_interfaces_counters' method, see NAPALM for documentation.
 
-        # for rd, description, rd_id, rd_vlan in zip(rd_list, rd_description_list, rd_id_list, rd_vlan_list):
-        #     if rd.split("/")[-1] == "0":
-        #         instance_name = "default"
-        #     else:
-        #         instance_name = rd.split("/")[-1]
+        The REST API reports octets as bit counts, and reports errors and discards only as
+        totals that cannot be split by direction. Counters the device does not break out are
+        returned as -1, per the NAPALM convention for unsupported counters.
+        """
+        try:
+            statistics = self._get_interfaces_all_statistics()
+        except RESTAPIError as err:
+            raise ConnectionError(f"get_interfaces_counters: {err}") from err
 
-        #     instances[instance_name] = {
-        #         "interfaces": {"interface": {vlan: {} for vlan in rd_vlan}},
-        #         "state": {"route_distinguisher": str(rd_id)},
-        #         "name": instance_name,
-        #         "type": "DEFAULT_INSTANCE" if instance_name == "default" else "L3VRF",
-        #     }
-
-        # return {name: instances.get(name, {})} if name else instances
-
-    def get_interfaces_counters(self):
-        raise NotImplementedError
-        # try:
-        #     icr_statistics = self._get_interfaces_all_statistics()
-        # except RESTAPIError as err:
-        #     raise ConnectionError(f"get_interfaces: {err}") from err
-
-        # counters = {}
-        # for x in icr_statistics["entries"]:
-        #     if_name = x["nestedStats"]["entries"]["tmName"]["description"]
-        #     counters[if_name] = {}
-        #     counters[if_name]["tx_broadcast_packets"] = -1
-        #     counters[if_name]["rx_broadcast_packets"] = -1
-
-        #     for stat in x["nestedStats"]["entries"]:
-        #         if stat["type"] == "STATISTIC_ERRORS_IN":
-        #             counters[if_name]["rx_errors"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_ERRORS_OUT":
-        #             counters[if_name]["tx_errors"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_DROPPED_PACKETS_IN":
-        #             counters[if_name]["rx_discards"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_DROPPED_PACKETS_OUT":
-        #             counters[if_name]["tx_discards"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_BYTES_IN":
-        #             counters[if_name]["rx_octets"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_BYTES_OUT":
-        #             counters[if_name]["tx_octets"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_PACKETS_IN":
-        #             counters[if_name]["rx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_PACKETS_OUT":
-        #             counters[if_name]["tx_unicast_packets"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_MULTICASTS_IN":
-        #             counters[if_name]["rx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
-        #         elif stat["type"] == "STATISTIC_MULTICASTS_OUT":
-        #             counters[if_name]["tx_multicast_packets"] = self.convert_to_64_bit(stat["value"])
-
-        # return counters
+        counters = {}
+        for entry in statistics["entries"].values():
+            stats = entry["nestedStats"]["entries"]
+            counters[stats["tmName"]["description"]] = {
+                "rx_octets": stats["counters.bitsIn"]["value"] // 8,
+                "tx_octets": stats["counters.bitsOut"]["value"] // 8,
+                "rx_unicast_packets": stats["counters.pktsIn"]["value"],
+                "tx_unicast_packets": stats["counters.pktsOut"]["value"],
+                "rx_errors": -1,
+                "tx_errors": -1,
+                "rx_discards": -1,
+                "tx_discards": -1,
+                "rx_multicast_packets": -1,
+                "tx_multicast_packets": -1,
+                "rx_broadcast_packets": -1,
+                "tx_broadcast_packets": -1,
+            }
+        return counters
 
     def get_interfaces(self):
         """F5 version of 'get_interfaces' method, see NAPALM for documentation."""
@@ -581,24 +461,8 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
             }
         return vlan_info
 
-    @staticmethod
-    def convert_to_64_bit(value):
-        """Converts two 32 bit signed integers to a 64-bit unsigned integer.
-        https://devcentral.f5.com/questions/high-and-low-bits-of-64-bit-long-and-c
-        by mhite.
-        """
-        high = value["high"]
-        low = value["low"]
-        if high < 0:
-            high = high + (1 << 32)
-        if low < 0:
-            low = low + (1 << 32)
-        value = int((high << 32) | low)
-        assert value >= 0
-        return value
-
     def _upload_scf(self, fp):
-        if self.optional_args["read_only"]:
+        if self.optional_args.get("read_only"):
             raise ReadOnlyModeException
 
         try:
