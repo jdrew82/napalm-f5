@@ -6,8 +6,11 @@ authors = ["Justin Drew <info@networktocode.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.15"
-napalm = "^4.0.0"
-bigrest = "^1.7.3"
+napalm = ">=4.0.0,<6.0.0"
+# NAPALM 4.x imports pkg_resources, which setuptools removed in 81. Harmless under
+# NAPALM 5, which does not import it.
+setuptools = ">=70.0.0,<81"
+bigrest = ">=1.7.3,<2.0.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "*"
@@ -23,8 +26,6 @@ sphinx-rtd-theme = "*"
 toml = "*"
 pytest-cov = "*"
 pytest-json = "*"
-pytest-pythonpath = "*"
-pylama = "*"
 flake8-import-order = "*"
 black = "*"
 mock = "*"
