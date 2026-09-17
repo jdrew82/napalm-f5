@@ -1,4 +1,4 @@
-ARG PYTHON_VER
+ARG PYTHON_VER=3.11
 
 FROM python:${PYTHON_VER}-slim
 
@@ -6,7 +6,7 @@ FROM python:${PYTHON_VER}-slim
 # hadolint ignore=DL3005,DL3008,DL3013
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y git mime-support curl libxml2 libmariadb3 openssl && \
+    apt-get install --no-install-recommends -y git media-types curl libxml2 libmariadb3 openssl && \
     apt-get autoremove -y && \
     apt-get clean all && \
     rm -rf /var/lib/apt/lists/* && \
@@ -25,8 +25,10 @@ WORKDIR /local
 COPY pyproject.toml poetry.lock /local/
 
 RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+  && poetry install --no-interaction --no-ansi --no-root
 
 # Do not break dependency caching before installing project
 COPY . .
-RUN poetry install
+# Poetry 2.x reports installing the root project but does not when
+# virtualenvs.create is false, so install it with pip; deps are already present.
+RUN pip install --no-deps --no-cache-dir .
