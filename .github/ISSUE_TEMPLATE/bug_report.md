@@ -4,7 +4,7 @@ about: Report a reproducible bug in the current release of napalm-f5
 ---
 
 ### Environment
-* Python version:  <!-- Example: 3.8 -->
+* Python version:  <!-- Example: 3.10 -->
 * napalm-f5 version:  <!-- Example: 1.0.0 -->
 
 <!-- What did you expect to happen? -->
