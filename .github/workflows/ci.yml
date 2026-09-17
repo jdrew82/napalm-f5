@@ -1,6 +1,6 @@
 ---
 name: "CI"
-concurrency:  # Cancel any existing runs of this workflow for this same PR
+concurrency: # Cancel any existing runs of this workflow for this same PR
   group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
 on: # yamllint disable-line rule:truthy rule:comments
@@ -17,7 +17,7 @@ env:
 
 jobs:
   black:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       INVOKE_LOCAL: "True"
     steps:
@@ -28,7 +28,7 @@ jobs:
       - name: "Linting: black"
         run: "poetry run invoke black"
   bandit:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       INVOKE_LOCAL: "True"
     steps:
@@ -41,7 +41,7 @@ jobs:
     needs:
       - "black"
   pydocstyle:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       INVOKE_LOCAL: "True"
     steps:
@@ -54,7 +54,7 @@ jobs:
     needs:
       - "black"
   flake8:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       INVOKE_LOCAL: "True"
     steps:
@@ -67,7 +67,7 @@ jobs:
     needs:
       - "black"
   yamllint:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       INVOKE_LOCAL: "True"
     steps:
@@ -84,7 +84,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       PYTHON_VER: "${{ matrix.python-version }}"
     steps:
@@ -115,7 +115,7 @@ jobs:
       - "flake8"
       - "yamllint"
   pylint:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     strategy:
       fail-fast: true
       matrix:
@@ -152,7 +152,7 @@ jobs:
     needs:
       - "build"
   pytest-napalm4:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     strategy:
       fail-fast: false
       matrix:
@@ -169,7 +169,7 @@ jobs:
       - name: "Downgrade to NAPALM 4.x"
         run: "poetry run pip install 'napalm>=4.0.0,<5.0.0' 'setuptools<81'"
       - name: "Verify NAPALM 4.x is installed"
-        run: "poetry run python -c 'import napalm; assert napalm.__version__.startswith(\"4.\"), napalm.__version__'"
+        run: 'poetry run python -c ''import napalm; assert napalm.__version__.startswith("4."), napalm.__version__'''
       - name: "Run Tests"
         run: "poetry run pytest tests/unit"
     needs:
@@ -179,7 +179,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     env:
       PYTHON_VER: "${{ matrix.python-version }}"
     steps:
