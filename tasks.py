@@ -125,7 +125,7 @@ def coverage(context, local=INVOKE_LOCAL):
         context (obj): Used to run specific commands
         local (bool): Define as `True` to execute locally
     """
-    exec_cmd = "coverage run --source=napalm_f5 -m pytest ./test/unit"
+    exec_cmd = "coverage run --source=napalm_f5 -m pytest ./tests/unit"
     run_cmd(context, exec_cmd, local)
     run_cmd(context, "coverage report", local)
     run_cmd(context, "coverage html", local)
@@ -139,7 +139,7 @@ def pytest(context, local=INVOKE_LOCAL):
         context (obj): Used to run specific commands
         local (bool): Define as `True` to execute locally
     """
-    exec_cmd = "pytest -vv napalm_f5 test && coverage run --source=napalm_f5 -m pytest test && coverage report"
+    exec_cmd = "pytest -vv napalm_f5 tests && coverage run --source=napalm_f5 -m pytest tests && coverage report"
     run_cmd(context, exec_cmd, local)
 
 
@@ -175,7 +175,7 @@ def pylint(context, local=INVOKE_LOCAL):
         context (obj): Used to run specific commands
         local (bool): Define as `True` to execute locally
     """
-    exec_cmd = 'find . -name "*.py" | grep -v "test/unit" | xargs pylint'
+    exec_cmd = 'find . -name "*.py" | grep -v "tests/unit" | xargs pylint'
     run_cmd(context, exec_cmd, local)
 
 
