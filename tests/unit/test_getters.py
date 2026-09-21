@@ -1,9 +1,7 @@
 """Tests for getters."""
 
-from napalm.base.test.getters import BaseTestGetters
-
-
 import pytest
+from napalm.base.test.getters import BaseTestGetters
 
 
 @pytest.mark.usefixtures("set_device_parameters")

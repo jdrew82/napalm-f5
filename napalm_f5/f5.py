@@ -8,7 +8,6 @@ import os
 from typing import Dict, List, Optional
 
 from bigrest.bigip import BIGIP, RESTAPIError
-
 from napalm.base.base import NetworkDriver
 from napalm.base.exceptions import ConnectionException, MergeConfigException, ReplaceConfigException
 from napalm.base.models import ConfigDict, InterfaceCounterDict

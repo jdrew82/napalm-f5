@@ -2,12 +2,11 @@
 
 import inspect
 
+import pytest
 from napalm.base.base import NetworkDriver
 
 from napalm_f5.exceptions import ReadOnlyModeException
 from napalm_f5.f5 import BASE_GET_CONFIG_TAKES_FORMAT, F5Driver
-
-import pytest
 
 
 class RecordingDevice:

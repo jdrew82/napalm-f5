@@ -3,14 +3,12 @@
 import json
 import re
 
+import pytest
 from bigrest.common.restobject import RESTObject
-
 from napalm.base.test import conftest as parent_conftest
 from napalm.base.test.double import BaseTestDouble
 
 from napalm_f5 import f5
-
-import pytest
 
 
 @pytest.fixture(scope="class")
