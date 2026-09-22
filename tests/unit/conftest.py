@@ -58,7 +58,7 @@ class FakeF5Device(BaseTestDouble):
       /mgmt/tm/util/bash        -> mgmt.tm.util.bash.txt       (text -> str)
 
     Fixture files are resolved via BaseTestDouble.find_file():
-      test/unit/mocked_data/{current_test}/{current_test_case}/{filename}
+      tests/unit/mocked_data/{current_test}/{current_test_case}/{filename}
     """
 
     _QUERY_RE = re.compile(r"\?.*$")

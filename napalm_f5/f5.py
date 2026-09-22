@@ -105,7 +105,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
                 # /tmp here is a path on the BIG-IP, not a local temp directory.
                 data = {
                     "command": "load",
-                    "options": [{"file": f"/tmp/{self.filename}", "merge": False}],  # nosec B108 # noqa: S108
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": False}],  # noqa: S108
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
@@ -190,7 +190,7 @@ class F5Driver(NetworkDriver):  # pylint: disable=abstract-method, too-many-inst
                 # /tmp here is a path on the BIG-IP, not a local temp directory.
                 data = {
                     "command": "load",
-                    "options": [{"file": f"/tmp/{self.filename}", "merge": True}],  # nosec B108 # noqa: S108
+                    "options": [{"file": f"/tmp/{self.filename}", "merge": True}],  # noqa: S108
                 }
                 self.device.command("/mgmt/tm/sys/config", data)
             except Exception as err:
