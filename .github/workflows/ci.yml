@@ -11,7 +11,7 @@ on: # yamllint disable-line rule:truthy rule:comments
   pull_request: ~
 
 env:
-  INVOKE_NAPALM_F5_IMAGE_NAME: "NAPALM_F5"
+  INVOKE_NAPALM_F5_IMAGE_NAME: "napalm-f5"
   INVOKE_NAPALM_F5_IMAGE_VER: "latest"
 
 jobs:
