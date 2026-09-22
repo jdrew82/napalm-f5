@@ -11,7 +11,7 @@ on: # yamllint disable-line rule:truthy rule:comments
   pull_request: ~
 
 env:
-  INVOKE_NAPALM_F5_IMAGE_NAME: "napalm-f5"
+  INVOKE_NAPALM_F5_IMAGE_NAME: "NAPALM_F5"
   INVOKE_NAPALM_F5_IMAGE_VER: "latest"
 
 jobs:
@@ -101,10 +101,10 @@ jobs:
           context: "./"
           push: false
           load: true
-          tags: "${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}:${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}"
+          tags: "${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}:${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}"
           file: "./Dockerfile"
-          cache-from: "type=gha,scope=${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}-py${{ matrix.python-version }}"
-          cache-to: "type=gha,scope=${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}-py${{ matrix.python-version }}"
+          cache-from: "type=gha,scope=${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}-py${{ matrix.python-version }}"
+          cache-to: "type=gha,scope=${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}-py${{ matrix.python-version }}"
           build-args: |
             PYTHON_VER=${{ matrix.python-version }}
       - name: "Linting: Pylint"
@@ -138,10 +138,10 @@ jobs:
           context: "./"
           push: false
           load: true
-          tags: "${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}:${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}"
+          tags: "${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}:${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}"
           file: "./Dockerfile"
-          cache-from: "type=gha,scope=${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}-py${{ matrix.python-version }}"
-          cache-to: "type=gha,scope=${{ env.INVOKE_NAPALM-F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM-F5_IMAGE_VER }}-py${{ matrix.python-version }}"
+          cache-from: "type=gha,scope=${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}-py${{ matrix.python-version }}"
+          cache-to: "type=gha,scope=${{ env.INVOKE_NAPALM_F5_IMAGE_NAME }}-${{ env.INVOKE_NAPALM_F5_IMAGE_VER }}-py${{ matrix.python-version }}"
           build-args: |
             PYTHON_VER=${{ matrix.python-version }}
       - name: "Run Tests"
